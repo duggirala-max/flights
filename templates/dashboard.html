@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flight Deals Dashboard</title>
+    <style>
+        :root {
+            --primary: #4F46E5;
+            --primary-hover: #4338CA;
+            --bg: #111827;
+            --card-bg: #1F2937;
+            --text-main: #F9FAFB;
+            --text-muted: #9CA3AF;
+            --danger: #EF4444;
+            --warning: #F59E0B;
+        }
+        body {
+            font-family: 'Inter', -apple-system, sans-serif;
+            background-color: var(--bg);
+            color: var(--text-main);
+            margin: 0;
+            padding: 20px;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding: 40px 20px;
+            background: linear-gradient(135deg, #4F46E5 0%, #7C3AED 100%);
+            border-radius: 16px;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            gap: 20px;
+        }
+        .flight-card {
+            background-color: var(--card-bg);
+            border-radius: 12px;
+            padding: 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-left: 4px solid transparent;
+        }
+        .anomaly-high {
+            border-left-color: var(--danger);
+        }
+        .anomaly-med {
+            border-left-color: var(--warning);
+        }
+        .price-section {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            min-width: 150px;
+        }
+        .price {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #10B981;
+            margin-bottom: 10px;
+        }
+        .price-orig {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            margin-bottom: 10px;
+        }
+        .book-btn {
+            background-color: var(--primary);
+            color: white;
+            text-decoration: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-weight: 600;
+            text-align: center;
+            display: inline-block;
+            width: 100%;
+            box-sizing: border-box;
+            border: none;
+            cursor: pointer;
+        }
+        .route-info {
+            flex-grow: 1;
+            padding-right: 30px;
+        }
+        .details-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 15px;
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            margin-top: 10px;
+        }
+        .detail-item strong {
+            color: var(--text-main);
+            display: block;
+            margin-bottom: 4px;
+        }
+        .badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin-right: 5px;
+            margin-bottom: 5px;
+            background-color: #374151;
+            color: #D1D5DB;
+        }
+        .badge-source {
+            background-color: #4B5563;
+        }
+        .badge-anomaly {
+            background-color: rgba(239, 68, 68, 0.2);
+            color: #FCA5A5;
+        }
+        .alert-box {
+            margin-top: 10px;
+            padding: 10px;
+            background-color: rgba(245, 158, 11, 0.1);
+            border: 1px solid var(--warning);
+            border-radius: 6px;
+            font-size: 0.85rem;
+            color: #FCD34D;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>✈️ Stealth Flight Deals Dashboard</h1>
+        <p><strong>{{ origin }}</strong> ➔ <strong>{{ destination }}</strong></p>
+        <p>Search Window: {{ date_from }} to {{ date_to }} | Cabin: {{ cabin_class }} | 2 Adults, 1 Infant</p>
+        <p style="font-size: 0.85rem; margin-top: 15px; opacity: 0.8;">Generated at: {{ timestamp }}</p>
+    </div>
+    
+    <div class="container">
+        {% if flights %}
+            {% for flight in flights %}
+                <div class="flight-card {% if flight.anomaly_score >= 50 %}anomaly-high{% elif flight.anomaly_score > 0 %}anomaly-med{% endif %}">
+                    <div class="route-info">
+                        <div style="font-size: 1.2rem; font-weight: 600; margin-bottom: 10px;">
+                            📅 {{ flight.departure_date }} 
+                            <span class="badge badge-source">{{ flight.source }}</span>
+                            <span class="badge">PoS: {{ flight.point_of_sale }}</span>
+                        </div>
+                        
+                        <div>
+                            {% for airline in flight.airlines %}
+                                <span class="badge">{{ airline }}</span>
+                            {% endfor %}
+                            <span style="color: var(--text-muted); font-size: 0.85rem;">Flight: {{ flight.flight_numbers|join(', ') }}</span>
+                        </div>
+                        
+                        <div class="details-grid">
+                            <div class="detail-item">
+                                <strong>Departure</strong> {{ flight.departure_time }}
+                            </div>
+                            <div class="detail-item">
+                                <strong>Arrival</strong> {{ flight.arrival_time }}
+                            </div>
+                            <div class="detail-item">
+                                <strong>Duration</strong> {{ flight.duration_minutes // 60 }}h {{ flight.duration_minutes % 60 }}m
+                            </div>
+                            <div class="detail-item">
+                                <strong>Stops</strong> {{ flight.stops }}
+                            </div>
+                            {% if flight.fare_basis %}
+                            <div class="detail-item">
+                                <strong>Fare Basis</strong> {{ flight.fare_basis }}
+                            </div>
+                            {% endif %}
+                        </div>
+
+                        {% if flight.anomaly_reasons %}
+                        <div class="alert-box">
+                            <strong>⚠️ Anomaly Detected (Score: {{ flight.anomaly_score }}):</strong>
+                            <ul>
+                            {% for reason in flight.anomaly_reasons %}
+                                <li>{{ reason }}</li>
+                            {% endfor %}
+                            </ul>
+                        </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="price-section">
+                        <div class="price">€{{ "%.0f"|format(flight.price_eur) }}</div>
+                        {% if flight.currency_original != 'EUR' %}
+                            <div class="price-orig">{{ "%.0f"|format(flight.price_original) }} {{ flight.currency_original }}</div>
+                        {% endif %}
+                        
+                        {% if flight.booking_method == 'GET' %}
+                            <a href="{{ flight.booking_url }}" target="_blank" class="book-btn">View Deal</a>
+                        {% else %}
+                            <form action="{{ flight.booking_url }}" method="POST" target="_blank" style="width: 100%;">
+                                <input type="hidden" name="post_data" value="{{ flight.booking_post_data }}">
+                                <button type="submit" class="book-btn">View Deal</button>
+                            </form>
+                        {% endif %}
+                    </div>
+                </div>
+            {% endfor %}
+        {% else %}
+            <div style="text-align: center; padding: 40px; background: var(--card-bg); border-radius: 12px;">
+                No flights found. Try expanding dates or check API keys.
+            </div>
+        {% endif %}
+    </div>
+</body>
+</html>

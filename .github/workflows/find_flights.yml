@@ -1,6 +1,8 @@
-name: Find Flight Deals (On-Demand)
+name: Find Flight Deals (Stealth/GDS)
 
 on:
+  schedule:
+    - cron: '0 6 * * *' # Run daily at 06:00 UTC
   workflow_dispatch:
     inputs:
       date_from:
@@ -9,7 +11,7 @@ on:
         type: string
         default: '2026-07-01'
       date_to:
-        description: 'End Date (YYYY-MM-DD) - Sweeps all dates up to this'
+        description: 'End Date (YYYY-MM-DD)'
         required: true
         type: string
         default: '2026-08-31'
@@ -21,12 +23,22 @@ on:
           - business
           - economy
         default: business
+      adults:
+        description: 'Number of Adults'
+        required: true
+        type: string
+        default: '2'
+      infants_on_lap:
+        description: 'Number of Infants on Lap'
+        required: true
+        type: string
+        default: '1'
       origin:
-        description: 'Origin Airport (IATA Code)'
+        description: 'Origin Airport (IATA)'
         required: true
         default: 'FRA'
       destination:
-        description: 'Destination Airport (IATA Code)'
+        description: 'Destination Airport (IATA)'
         required: true
         default: 'HYD'
 
@@ -48,19 +60,41 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements.txt
 
-      - name: Run Geo-Arbitrage Flight Sweep
+      # We can use cache to persist SQLite DB
+      - name: Cache SQLite DB
+        uses: actions/cache@v3
+        with:
+          path: data/price_history.db
+          key: ${{ runner.os }}-sqlite-history-${{ github.run_id }}
+          restore-keys: |
+            ${{ runner.os }}-sqlite-history-
+
+      - name: Run Stealth Flight Sweep
         env:
           SERPAPI_KEY: ${{ secrets.SERPAPI_KEY }}
-          DATE_FROM: ${{ inputs.date_from }}
-          DATE_TO: ${{ inputs.date_to }}
-          CABIN_CLASS: ${{ inputs.cabin_class }}
-          ORIGIN: ${{ inputs.origin }}
-          DESTINATION: ${{ inputs.destination }}
-        run: python flight_tracker.py
+          AMADEUS_CLIENT_ID: ${{ secrets.AMADEUS_CLIENT_ID }}
+          AMADEUS_CLIENT_SECRET: ${{ secrets.AMADEUS_CLIENT_SECRET }}
+          DUFFEL_TOKEN: ${{ secrets.DUFFEL_TOKEN }}
+          DATE_FROM: ${{ inputs.date_from || '2026-07-01' }}
+          DATE_TO: ${{ inputs.date_to || '2026-08-31' }}
+          CABIN_CLASS: ${{ inputs.cabin_class || 'business' }}
+          ADULTS: ${{ inputs.adults || '2' }}
+          INFANTS_ON_LAP: ${{ inputs.infants_on_lap || '1' }}
+          ORIGIN: ${{ inputs.origin || 'FRA' }}
+          DESTINATION: ${{ inputs.destination || 'HYD' }}
+          PYTHONUNBUFFERED: "1"
+        run: python -u main.py
+
+      - name: Save updated DB back to Cache
+        uses: actions/cache/save@v3
+        if: always()
+        with:
+          path: data/price_history.db
+          key: ${{ runner.os }}-sqlite-history-${{ github.run_id }}
 
       - name: Publish Dashboard to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./output
-          commit_message: "Update flight dashboard"
+          commit_message: "Update stealth flight dashboard"
