@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flight Deals Dashboard</title>
+    <style>
+        :root {
+            --primary: #4F46E5;
+            --primary-hover: #4338CA;
+            --bg: #F3F4F6;
+            --card-bg: #FFFFFF;
+            --text-main: #111827;
+            --text-muted: #6B7280;
+        }
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg);
+            color: var(--text-main);
+            margin: 0;
+            padding: 20px;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding: 40px 20px;
+            background: linear-gradient(135deg, #4F46E5 0%, #7C3AED 100%);
+            color: white;
+            border-radius: 16px;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+        .header h1 {
+            margin: 0 0 10px 0;
+            font-size: 2.5rem;
+        }
+        .header p {
+            margin: 5px 0;
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            display: grid;
+            gap: 20px;
+        }
+        .flight-card {
+            background-color: var(--card-bg);
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        .flight-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+        .price-section {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            min-width: 150px;
+        }
+        .price {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 10px;
+        }
+        .book-btn {
+            background-color: var(--primary);
+            color: white;
+            text-decoration: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: background-color 0.2s ease;
+            text-align: center;
+            display: inline-block;
+            width: 100%;
+            box-sizing: border-box;
+        }
+        .book-btn:hover {
+            background-color: var(--primary-hover);
+        }
+        .route-info {
+            flex-grow: 1;
+            padding-right: 30px;
+        }
+        .route-path {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .details-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            font-size: 0.9rem;
+            color: var(--text-muted);
+        }
+        .detail-item strong {
+            color: var(--text-main);
+            display: block;
+            margin-bottom: 4px;
+        }
+        .airline-badge {
+            display: inline-block;
+            background-color: #EEF2FF;
+            color: #4338CA;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin-right: 5px;
+            margin-bottom: 5px;
+        }
+        .no-results {
+            text-align: center;
+            padding: 40px;
+            background-color: white;
+            border-radius: 12px;
+            color: var(--text-muted);
+            font-size: 1.2rem;
+        }
+        @media (max-width: 768px) {
+            .flight-card {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            .route-info {
+                padding-right: 0;
+                margin-bottom: 20px;
+                width: 100%;
+            }
+            .price-section {
+                width: 100%;
+                align-items: flex-start;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>✈️ Flight Deals Dashboard</h1>
+        <p><strong>FRA</strong> ➔ <strong>HYD</strong></p>
+        <p>Search Window: 2026-08-10 to 2026-12-31 | Cabin: Business | Passengers: 2 Adults, 1 Infant</p>
+        <p style="font-size: 0.85rem; margin-top: 15px; opacity: 0.8;">Generated at: 2026-06-22 16:52:24 UTC</p>
+    </div>
+    
+    <div class="container">
+        
+            <div class="no-results">
+                No family-safe single-ticket flights found for this criteria. Try expanding your dates or changing the cabin class.
+            </div>
+        
+    </div>
+</body>
+</html>
