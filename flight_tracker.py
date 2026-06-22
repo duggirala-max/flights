@@ -1,100 +1,69 @@
 import os
-import requests
-import json
 from datetime import datetime, timedelta
 from jinja2 import Environment, FileSystemLoader
+from duffel_api import Duffel
 
-API_KEY = os.environ.get("AMADEUS_API_KEY")
-API_SECRET = os.environ.get("AMADEUS_API_SECRET")
+DUFFEL_API_KEY = os.environ.get("DUFFEL_API_KEY")
 DATE_FROM = os.environ.get("DATE_FROM", "2026-07-01")
 DATE_TO = os.environ.get("DATE_TO", "2026-08-31")
-CABIN_CLASS = os.environ.get("CABIN_CLASS", "BUSINESS") # or ECONOMY
+CABIN_CLASS = os.environ.get("CABIN_CLASS", "business").lower()
 ORIGIN = os.environ.get("ORIGIN", "FRA")
 DESTINATION = os.environ.get("DESTINATION", "HYD")
 
-def get_amadeus_token():
-    url = "https://test.api.amadeus.com/v1/security/oauth2/token"
-    headers = {"Content-Type": "application/x-www-form-urlencoded"}
-    data = {
-        "grant_type": "client_credentials",
-        "client_id": API_KEY,
-        "client_secret": API_SECRET
-    }
-    response = requests.post(url, headers=headers, data=data)
-    response.raise_for_status()
-    return response.json()["access_token"]
-
-def format_duration(pt_string):
-    # Amadeus returns duration like PT14H30M
-    s = pt_string.replace('PT', '')
+def format_duration(duration_str):
+    # Duffel duration format: "PT14H30M" (ISO 8601)
+    if not duration_str: return ""
+    s = duration_str.replace('PT', '')
     s = s.replace('H', 'h ')
     s = s.replace('M', 'm')
     return s.strip()
 
-def fetch_flights_for_date(date_str, token):
-    url = "https://test.api.amadeus.com/v2/shopping/flight-offers"
-    headers = {"Authorization": f"Bearer {token}"}
-    params = {
-        "originLocationCode": ORIGIN,
-        "destinationLocationCode": DESTINATION,
-        "departureDate": date_str,
-        "adults": 2,
-        "infants": 1,
-        "travelClass": CABIN_CLASS.upper(),
-        "currencyCode": "EUR",
-        "max": 10
-    }
-    
+def fetch_flights_for_date(date_str, client):
+    print(f"Checking {date_str} on Duffel...")
     try:
-        response = requests.get(url, headers=headers, params=params)
-        if response.status_code != 200:
-            return []
-        data = response.json()
-        
+        # We query explicitly for 2 Adults and 1 Infant (lap)
+        offer_request = client.offer_requests.create() \
+            .passengers([{"type": "adult"}, {"type": "adult"}, {"type": "infant_without_seat"}]) \
+            .slices([{"origin": ORIGIN, "destination": DESTINATION, "departure_date": date_str}]) \
+            .cabin_class(CABIN_CLASS) \
+            .execute()
+            
         flights = []
-        for offer in data.get("data", []):
-            itinerary = offer["itineraries"][0]
-            segments = itinerary["segments"]
+        for offer in offer_request.offers:
+            # We want single ticket with checked baggage, Duffel handles this.
+            slice = offer.slices[0]
+            segments = slice.segments
             
-            departure = segments[0]["departure"]["at"]
-            arrival = segments[-1]["arrival"]["at"]
-            duration = itinerary.get("duration", "")
+            departure_dt = datetime.fromisoformat(segments[0].departing_at)
+            arrival_dt = datetime.fromisoformat(segments[-1].arriving_at)
             
-            airlines = list(set([seg["carrierCode"] for seg in segments]))
-            price = float(offer["price"]["total"])
-            
-            dep_dt = datetime.fromisoformat(departure)
-            arr_dt = datetime.fromisoformat(arrival)
+            airlines = list(set([seg.marketing_carrier.name for seg in segments]))
             
             flights.append({
-                "price": price,
+                "price": float(offer.total_amount),
                 "flyFrom": ORIGIN,
                 "flyTo": DESTINATION,
-                "departure_date": dep_dt.strftime("%a, %b %d, %Y"),
-                "local_departure": dep_dt.strftime("%H:%M"),
-                "local_arrival": arr_dt.strftime("%H:%M"),
-                "duration": format_duration(duration),
+                "departure_date": departure_dt.strftime("%a, %b %d, %Y"),
+                "local_departure": departure_dt.strftime("%H:%M"),
+                "local_arrival": arrival_dt.strftime("%H:%M"),
+                "duration": format_duration(slice.duration),
                 "airlines": airlines,
                 "route_count": len(segments),
-                "deep_link": "https://www.google.com/flights?q=flights+from+" + ORIGIN + "+to+" + DESTINATION + "+on+" + date_str # Amadeus test doesn't give deep links natively, so we fallback to a search link
+                "deep_link": f"https://www.google.com/flights?q=flights+from+{ORIGIN}+to+{DESTINATION}+on+{date_str}" 
             })
+            
         return flights
     except Exception as e:
-        print(f"Error fetching flights for {date_str}: {e}")
+        print(f"Error fetching for {date_str}: {e}")
         return []
 
 def fetch_flights():
-    if not API_KEY or not API_SECRET:
-        print("Error: AMADEUS_API_KEY or AMADEUS_API_SECRET environment variables not set.")
+    if not DUFFEL_API_KEY:
+        print("Error: DUFFEL_API_KEY environment variable not set.")
         return []
         
-    try:
-        token = get_amadeus_token()
-    except Exception as e:
-        print(f"Error getting Amadeus token: {e}")
-        return []
+    client = Duffel(access_token=DUFFEL_API_KEY)
     
-    # We will sample 5 different dates evenly spread across the date range to avoid hitting API limits too fast
     try:
         start_dt = datetime.strptime(DATE_FROM, "%Y-%m-%d")
         end_dt = datetime.strptime(DATE_TO, "%Y-%m-%d")
@@ -104,23 +73,19 @@ def fetch_flights():
         
     delta = (end_dt - start_dt).days
     if delta < 0: delta = 0
-    
-    # Check max 7 dates to keep the GitHub action fast and within rate limits
     step = max(1, delta // 7)
     
     all_flights = []
-    print(f"Sweeping flights from {ORIGIN} to {DESTINATION} between {DATE_FROM} and {DATE_TO} in {CABIN_CLASS} class...")
+    print(f"Sweeping NDC flights from {ORIGIN} to {DESTINATION} between {DATE_FROM} and {DATE_TO} in {CABIN_CLASS} class...")
     
     current_dt = start_dt
     while current_dt <= end_dt:
         date_str = current_dt.strftime("%Y-%m-%d")
-        print(f"Checking {date_str}...")
-        daily_flights = fetch_flights_for_date(date_str, token)
+        daily_flights = fetch_flights_for_date(date_str, client)
         all_flights.extend(daily_flights)
         current_dt += timedelta(days=step)
         if step == 0: break
         
-    # Sort by price and get top 20
     all_flights.sort(key=lambda x: x["price"])
     return all_flights[:20]
 
@@ -133,7 +98,7 @@ def generate_html(flights):
         destination=DESTINATION,
         date_from=DATE_FROM,
         date_to=DATE_TO,
-        cabin_class=CABIN_CLASS,
+        cabin_class=CABIN_CLASS.capitalize(),
         timestamp=datetime.now().strftime("%Y-%m-%d %H:%M:%S UTC"),
         flights=flights
     )
@@ -147,12 +112,12 @@ def generate_html(flights):
     summary_path = os.environ.get("GITHUB_STEP_SUMMARY")
     if summary_path and flights:
         with open(summary_path, 'a', encoding='utf-8') as f:
-            f.write(f"## Top Flight Deals ({ORIGIN} ➔ {DESTINATION} | {CABIN_CLASS})\n\n")
+            f.write(f"## Top NDC Deals ({ORIGIN} ➔ {DESTINATION} | {CABIN_CLASS.capitalize()})\n\n")
             f.write("| Date | Departure | Price | Airlines | Duration |\n")
             f.write("|------|-----------|-------|----------|----------|\n")
             for fl in flights[:5]:
                 f.write(f"| {fl['departure_date']} | {fl['local_departure']} | €{fl['price']} | {', '.join(fl['airlines'])} | {fl['duration']} |\n")
-            f.write("\n> The results have been deployed to your GitHub Pages dashboard!\n")
+            f.write("\n> View the full dashboard on GitHub Pages for the lowest 20 options!\n")
 
 if __name__ == "__main__":
     flights = fetch_flights()

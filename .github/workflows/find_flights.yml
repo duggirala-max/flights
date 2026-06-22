@@ -18,9 +18,9 @@ on:
         required: true
         type: choice
         options:
-          - BUSINESS
-          - ECONOMY
-        default: BUSINESS
+          - business
+          - economy
+        default: business
       origin:
         description: 'Origin Airport (IATA Code)'
         required: true
@@ -48,10 +48,9 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements.txt
 
-      - name: Run Flight Tracker Sweep
+      - name: Run NDC Flight Tracker Sweep
         env:
-          AMADEUS_API_KEY: ${{ secrets.AMADEUS_API_KEY }}
-          AMADEUS_API_SECRET: ${{ secrets.AMADEUS_API_SECRET }}
+          DUFFEL_API_KEY: ${{ secrets.DUFFEL_API_KEY }}
           DATE_FROM: ${{ inputs.date_from }}
           DATE_TO: ${{ inputs.date_to }}
           CABIN_CLASS: ${{ inputs.cabin_class }}
