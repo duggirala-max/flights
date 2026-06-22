@@ -1,7 +1,7 @@
 import os
+import requests
 from datetime import datetime, timedelta
 from jinja2 import Environment, FileSystemLoader
-from duffel_api import Duffel
 
 DUFFEL_API_KEY = os.environ.get("DUFFEL_API_KEY")
 DATE_FROM = os.environ.get("DATE_FROM", "2026-07-01")
@@ -18,35 +18,66 @@ def format_duration(duration_str):
     s = s.replace('M', 'm')
     return s.strip()
 
-def fetch_flights_for_date(date_str, client):
+def fetch_flights_for_date(date_str):
     print(f"Checking {date_str} on Duffel...")
+    
+    url = "https://api.duffel.com/air/offer_requests"
+    headers = {
+        "Authorization": f"Bearer {DUFFEL_API_KEY}",
+        "Duffel-Version": "v2",
+        "Content-Type": "application/json",
+        "Accept": "application/json"
+    }
+    
+    payload = {
+        "data": {
+            "passengers": [
+                {"type": "adult"},
+                {"type": "adult"},
+                {"type": "infant_without_seat"}
+            ],
+            "slices": [
+                {
+                    "origin": ORIGIN,
+                    "destination": DESTINATION,
+                    "departure_date": date_str
+                }
+            ],
+            "cabin_class": CABIN_CLASS
+        }
+    }
+    
     try:
-        # We query explicitly for 2 Adults and 1 Infant (lap)
-        offer_request = client.offer_requests.create() \
-            .passengers([{"type": "adult"}, {"type": "adult"}, {"type": "infant_without_seat"}]) \
-            .slices([{"origin": ORIGIN, "destination": DESTINATION, "departure_date": date_str}]) \
-            .cabin_class(CABIN_CLASS) \
-            .execute()
+        response = requests.post(url, headers=headers, json=payload)
+        
+        if response.status_code != 200 and response.status_code != 201:
+            print(f"Error fetching for {date_str}: {response.text}")
+            return []
+            
+        data = response.json().get("data", {})
+        offers = data.get("offers", [])
             
         flights = []
-        for offer in offer_request.offers:
-            # We want single ticket with checked baggage, Duffel handles this.
-            slice = offer.slices[0]
-            segments = slice.segments
+        for offer in offers:
+            slice_data = offer.get("slices", [])[0]
+            segments = slice_data.get("segments", [])
             
-            departure_dt = datetime.fromisoformat(segments[0].departing_at)
-            arrival_dt = datetime.fromisoformat(segments[-1].arriving_at)
+            if not segments:
+                continue
+                
+            departure_dt = datetime.fromisoformat(segments[0]["departing_at"].replace("Z", "+00:00"))
+            arrival_dt = datetime.fromisoformat(segments[-1]["arriving_at"].replace("Z", "+00:00"))
             
-            airlines = list(set([seg.marketing_carrier.name for seg in segments]))
+            airlines = list(set([seg.get("marketing_carrier", {}).get("name", "Unknown") for seg in segments]))
             
             flights.append({
-                "price": float(offer.total_amount),
+                "price": float(offer.get("total_amount", 0)),
                 "flyFrom": ORIGIN,
                 "flyTo": DESTINATION,
                 "departure_date": departure_dt.strftime("%a, %b %d, %Y"),
                 "local_departure": departure_dt.strftime("%H:%M"),
                 "local_arrival": arrival_dt.strftime("%H:%M"),
-                "duration": format_duration(slice.duration),
+                "duration": format_duration(slice_data.get("duration", "")),
                 "airlines": airlines,
                 "route_count": len(segments),
                 "deep_link": f"https://www.google.com/flights?q=flights+from+{ORIGIN}+to+{DESTINATION}+on+{date_str}" 
@@ -54,7 +85,7 @@ def fetch_flights_for_date(date_str, client):
             
         return flights
     except Exception as e:
-        print(f"Error fetching for {date_str}: {e}")
+        print(f"Exception fetching for {date_str}: {e}")
         return []
 
 def fetch_flights():
@@ -62,8 +93,6 @@ def fetch_flights():
         print("Error: DUFFEL_API_KEY environment variable not set.")
         return []
         
-    client = Duffel(access_token=DUFFEL_API_KEY)
-    
     try:
         start_dt = datetime.strptime(DATE_FROM, "%Y-%m-%d")
         end_dt = datetime.strptime(DATE_TO, "%Y-%m-%d")
@@ -81,7 +110,7 @@ def fetch_flights():
     current_dt = start_dt
     while current_dt <= end_dt:
         date_str = current_dt.strftime("%Y-%m-%d")
-        daily_flights = fetch_flights_for_date(date_str, client)
+        daily_flights = fetch_flights_for_date(date_str)
         all_flights.extend(daily_flights)
         current_dt += timedelta(days=step)
         if step == 0: break
