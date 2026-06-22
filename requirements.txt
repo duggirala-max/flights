@@ -1,4 +1,4 @@
 requests
 jinja2
 python-dotenv
-duffel-api
+google-search-results

@@ -179,6 +179,10 @@
                                 <strong>Layovers</strong>
                                 {{ flight.route_count - 1 }}
                             </div>
+                            <div class="detail-item">
+                                <strong>Point of Sale</strong>
+                                {{ flight.point_of_sale }}
+                            </div>
                         </div>
                         <div style="margin-top: 15px;">
                             {% for airline in flight.airlines %}
