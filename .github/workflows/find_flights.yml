@@ -1,0 +1,66 @@
+name: Find Flight Deals (On-Demand)
+
+on:
+  workflow_dispatch:
+    inputs:
+      date_from:
+        description: 'Start Date (YYYY-MM-DD)'
+        required: true
+        type: string
+        default: '2026-07-01'
+      date_to:
+        description: 'End Date (YYYY-MM-DD) - Sweeps all dates up to this'
+        required: true
+        type: string
+        default: '2026-08-31'
+      cabin_class:
+        description: 'Cabin Class'
+        required: true
+        type: choice
+        options:
+          - Business
+          - Economy
+        default: Business
+      origin:
+        description: 'Origin Airport (IATA Code)'
+        required: true
+        default: 'FRA'
+      destination:
+        description: 'Destination Airport (IATA Code)'
+        required: true
+        default: 'HYD'
+
+permissions:
+  contents: write
+
+jobs:
+  sweep_flights:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run Flight Tracker Sweep
+        env:
+          KIWI_API_KEY: ${{ secrets.KIWI_API_KEY }}
+          DATE_FROM: ${{ inputs.date_from }}
+          DATE_TO: ${{ inputs.date_to }}
+          CABIN_CLASS: ${{ inputs.cabin_class }}
+          ORIGIN: ${{ inputs.origin }}
+          DESTINATION: ${{ inputs.destination }}
+        run: python flight_tracker.py
+
+      - name: Publish Dashboard to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./output
+          commit_message: "Update flight dashboard"
