@@ -99,17 +99,10 @@ class SerpApiGoogleSource(FlightSource):
                 local_dep = legs[0].get("departure_airport", {}).get("time", "TBD").split(" ")[0] if legs else "TBD"
                 local_arr = legs[-1].get("arrival_airport", {}).get("time", "TBD").split(" ")[0] if legs else "TBD"
                 
-                # Fetch real booking link via booking_token
-                booking_token = flight.get("booking_token")
-                booking_url = f"https://www.google.com/travel/flights?q=Flights%20to%20{config.destination}%20from%20{config.origin}%20on%20{date_str}%20one-way"
-                booking_method = "GET"
-                booking_post_data = None
-                
-                # We only fetch deep link for the absolute cheapest to save SerpApi credits
-                # But actually, we don't know the absolute cheapest yet. So we can just save the token and resolve later,
-                # but for simplicity, let's just resolve the very first (cheapest) best_flight.
-                # To be safe, we will just store the token and let aggregator resolve it? No, aggregator doesn't have serpapi_key easily.
-                # Let's resolve here if it's the first best_flight
+                # Capture the SerpApi-provided Google Flights search URL which HAS all filters applied
+                # as a fallback if we don't resolve the token later.
+                gf_url = results.get("search_metadata", {}).get("google_flights_url")
+                fallback_url = gf_url if gf_url else f"https://www.google.com/travel/flights?q=Flights%20to%20{config.destination}%20from%20{config.origin}%20on%20{date_str}%20one-way"
                 
                 parsed_flights.append(FlightOffer(
                     source=self.name(),
@@ -129,15 +122,12 @@ class SerpApiGoogleSource(FlightSource):
                     booking_class=None,
                     cabin=config.cabin_class,
                     point_of_sale=geo['name'],
-                    booking_url=booking_url,
-                    booking_method=booking_method,
-                    booking_post_data=booking_post_data,
-                    raw_data={"booking_token": booking_token}
+                    booking_url=fallback_url,
+                    booking_method="GET",
+                    booking_post_data=None,
+                    raw_data={"booking_token": flight.get("booking_token")}
                 ))
-            
-            # Fetch real deep link for the cheapest option to save credits
-            if parsed_flights and parsed_flights[0].raw_data.get("booking_token"):
-                self._resolve_booking_link(parsed_flights[0], keys.serpapi_key)
+
 
             return parsed_flights
 
@@ -145,7 +135,8 @@ class SerpApiGoogleSource(FlightSource):
             print(f"SerpApi Error for {date_str} in {geo['name']}: {e}")
             return []
 
-    def _resolve_booking_link(self, offer: FlightOffer, api_key: str):
+    @staticmethod
+    def resolve_booking_link(offer: FlightOffer, api_key: str):
         token = offer.raw_data.get("booking_token")
         if not token: return
         

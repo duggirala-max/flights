@@ -68,6 +68,14 @@ def main():
 
     print(f"Found {len(best_flights)} deduplicated flights.")
 
+    # Resolve deep links for the absolute best 5 flights to give direct checkout links
+    # and save SerpApi credits on the rest (which will use the filtered Google Flights search link)
+    if keys.serpapi_key:
+        print("Resolving deep booking links for the top 5 flights...")
+        for flight in best_flights[:5]:
+            if flight.source == "serpapi_google":
+                SerpApiGoogleSource.resolve_booking_link(flight, keys.serpapi_key)
+
     # Generate Output
     generate_html(best_flights, config)
 
