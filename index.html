@@ -8,13 +8,15 @@
         :root {
             --primary: #4F46E5;
             --primary-hover: #4338CA;
-            --bg: #F3F4F6;
-            --card-bg: #FFFFFF;
-            --text-main: #111827;
-            --text-muted: #6B7280;
+            --bg: #111827;
+            --card-bg: #1F2937;
+            --text-main: #F9FAFB;
+            --text-muted: #9CA3AF;
+            --danger: #EF4444;
+            --warning: #F59E0B;
         }
         body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            font-family: 'Inter', -apple-system, sans-serif;
             background-color: var(--bg);
             color: var(--text-main);
             margin: 0;
@@ -25,21 +27,10 @@
             margin-bottom: 40px;
             padding: 40px 20px;
             background: linear-gradient(135deg, #4F46E5 0%, #7C3AED 100%);
-            color: white;
             border-radius: 16px;
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-        }
-        .header h1 {
-            margin: 0 0 10px 0;
-            font-size: 2.5rem;
-        }
-        .header p {
-            margin: 5px 0;
-            font-size: 1.1rem;
-            opacity: 0.9;
         }
         .container {
-            max-width: 1000px;
+            max-width: 1200px;
             margin: 0 auto;
             display: grid;
             gap: 20px;
@@ -48,15 +39,16 @@
             background-color: var(--card-bg);
             border-radius: 12px;
             padding: 24px;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
             display: flex;
             justify-content: space-between;
             align-items: center;
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            border-left: 4px solid transparent;
         }
-        .flight-card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        .anomaly-high {
+            border-left-color: var(--danger);
+        }
+        .anomaly-med {
+            border-left-color: var(--warning);
         }
         .price-section {
             display: flex;
@@ -67,7 +59,12 @@
         .price {
             font-size: 2rem;
             font-weight: 700;
-            color: var(--primary);
+            color: #10B981;
+            margin-bottom: 10px;
+        }
+        .price-orig {
+            font-size: 0.9rem;
+            color: var(--text-muted);
             margin-bottom: 10px;
         }
         .book-btn {
@@ -77,1289 +74,2275 @@
             padding: 12px 24px;
             border-radius: 8px;
             font-weight: 600;
-            transition: background-color 0.2s ease;
             text-align: center;
             display: inline-block;
             width: 100%;
             box-sizing: border-box;
-        }
-        .book-btn:hover {
-            background-color: var(--primary-hover);
+            border: none;
+            cursor: pointer;
         }
         .route-info {
             flex-grow: 1;
             padding-right: 30px;
         }
-        .route-path {
-            font-size: 1.25rem;
-            font-weight: 600;
-            margin-bottom: 12px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
         .details-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
             gap: 15px;
             font-size: 0.9rem;
             color: var(--text-muted);
+            margin-top: 10px;
         }
         .detail-item strong {
             color: var(--text-main);
             display: block;
             margin-bottom: 4px;
         }
-        .airline-badge {
+        .badge {
             display: inline-block;
-            background-color: #EEF2FF;
-            color: #4338CA;
             padding: 4px 8px;
             border-radius: 4px;
             font-size: 0.8rem;
             font-weight: 600;
             margin-right: 5px;
             margin-bottom: 5px;
+            background-color: #374151;
+            color: #D1D5DB;
         }
-        .no-results {
-            text-align: center;
-            padding: 40px;
-            background-color: white;
-            border-radius: 12px;
-            color: var(--text-muted);
-            font-size: 1.2rem;
+        .badge-source {
+            background-color: #4B5563;
         }
-        @media (max-width: 768px) {
-            .flight-card {
-                flex-direction: column;
-                align-items: flex-start;
-            }
-            .route-info {
-                padding-right: 0;
-                margin-bottom: 20px;
-                width: 100%;
-            }
-            .price-section {
-                width: 100%;
-                align-items: flex-start;
-            }
+        .badge-anomaly {
+            background-color: rgba(239, 68, 68, 0.2);
+            color: #FCA5A5;
+        }
+        .alert-box {
+            margin-top: 10px;
+            padding: 10px;
+            background-color: rgba(245, 158, 11, 0.1);
+            border: 1px solid var(--warning);
+            border-radius: 6px;
+            font-size: 0.85rem;
+            color: #FCD34D;
         }
     </style>
 </head>
 <body>
     <div class="header">
-        <h1>✈️ Flight Deals Dashboard</h1>
+        <h1>✈️ Stealth Flight Deals Dashboard</h1>
         <p><strong>FRA</strong> ➔ <strong>HYD</strong></p>
-        <p>Search Window: 2026-07-01 to 2026-09-30 | Cabin: Business | Passengers: 2 Adults, 1 Infant</p>
-        <p style="font-size: 0.85rem; margin-top: 15px; opacity: 0.8;">Generated at: 2026-06-22 18:35:44 UTC</p>
+        <p>Search Window: 2026-08-01 to 2026-09-30 | Cabin: BUSINESS | 2 Adults, 1 Infant</p>
+        <p style="font-size: 0.85rem; margin-top: 15px; opacity: 0.8;">Generated at: 2026-06-23 06:38:16 UTC</p>
     </div>
     
     <div class="container">
         
             
-                <div class="flight-card">
+                <div class="flight-card ">
                     <div class="route-info">
-                        <div class="route-path">
-                            <span>📅 2026-09-11</span>
+                        <div style="font-size: 1.2rem; font-weight: 600; margin-bottom: 10px;">
+                            📅 2026-08-01 
+                            <span class="badge badge-source">serpapi_google</span>
+                            <span class="badge">PoS: Brazil</span>
                         </div>
+                        
+                        <div>
+                            
+                                <span class="badge">Saudia</span>
+                            
+                            <span style="color: var(--text-muted); font-size: 0.85rem;">Flight: SV 168, SV 754</span>
+                        </div>
+                        
                         <div class="details-grid">
                             <div class="detail-item">
-                                <strong>Departure</strong>
-                                2026-09-11
+                                <strong>Departure</strong> 2026-08-01
                             </div>
                             <div class="detail-item">
-                                <strong>Arrival</strong>
-                                2026-09-13
+                                <strong>Arrival</strong> 2026-08-02
                             </div>
                             <div class="detail-item">
-                                <strong>Duration</strong>
-                                32h 40m
+                                <strong>Duration</strong> 13h 55m
                             </div>
                             <div class="detail-item">
-                                <strong>Layovers</strong>
-                                1
+                                <strong>Stops</strong> 1
                             </div>
-                            <div class="detail-item">
-                                <strong>Point of Sale</strong>
-                                Germany
-                            </div>
-                        </div>
-                        <div style="margin-top: 15px;">
-                            
-                                <span class="airline-badge">Air India</span>
                             
                         </div>
+
+                        
                     </div>
+                    
                     <div class="price-section">
-                        <div class="price">€2834.0</div>
-                        <a href="https://www.google.com/travel/flights?q=Flights%20to%20HYD%20from%20FRA%20on%202026-09-11%20one-way" target="_blank" class="book-btn">Book Now</a>
+                        <div class="price">€1827</div>
+                        
+                            <div class="price-orig">10782 BRL</div>
+                        
+                        
+                        
+                            <a href="https://www.google.com/travel/flights?q=Flights%20to%20HYD%20from%20FRA%20on%202026-08-01%20one-way" target="_blank" class="book-btn">View Deal</a>
+                        
                     </div>
                 </div>
             
-                <div class="flight-card">
+                <div class="flight-card ">
                     <div class="route-info">
-                        <div class="route-path">
-                            <span>📅 2026-07-01</span>
+                        <div style="font-size: 1.2rem; font-weight: 600; margin-bottom: 10px;">
+                            📅 2026-09-10 
+                            <span class="badge badge-source">serpapi_google</span>
+                            <span class="badge">PoS: Germany</span>
                         </div>
+                        
+                        <div>
+                            
+                                <span class="badge">Air India</span>
+                            
+                            <span style="color: var(--text-muted); font-size: 0.85rem;">Flight: AI 2028, AI 2444</span>
+                        </div>
+                        
                         <div class="details-grid">
                             <div class="detail-item">
-                                <strong>Departure</strong>
-                                2026-07-01
+                                <strong>Departure</strong> 2026-09-10
                             </div>
                             <div class="detail-item">
-                                <strong>Arrival</strong>
-                                2026-07-02
+                                <strong>Arrival</strong> 2026-09-11
                             </div>
                             <div class="detail-item">
-                                <strong>Duration</strong>
-                                16h 40m
+                                <strong>Duration</strong> 12h 35m
                             </div>
                             <div class="detail-item">
-                                <strong>Layovers</strong>
-                                1
+                                <strong>Stops</strong> 1
                             </div>
-                            <div class="detail-item">
-                                <strong>Point of Sale</strong>
-                                Germany
-                            </div>
-                        </div>
-                        <div style="margin-top: 15px;">
-                            
-                                <span class="airline-badge">Air India</span>
                             
                         </div>
+
+                        
                     </div>
+                    
                     <div class="price-section">
-                        <div class="price">€2843.0</div>
-                        <a href="https://www.google.com/travel/flights?q=Flights%20to%20HYD%20from%20FRA%20on%202026-07-01%20one-way" target="_blank" class="book-btn">Book Now</a>
+                        <div class="price">€2716</div>
+                        
+                        
+                        
+                            <a href="https://www.google.com/travel/flights?q=Flights%20to%20HYD%20from%20FRA%20on%202026-09-10%20one-way" target="_blank" class="book-btn">View Deal</a>
+                        
                     </div>
                 </div>
             
-                <div class="flight-card">
+                <div class="flight-card ">
                     <div class="route-info">
-                        <div class="route-path">
-                            <span>📅 2026-09-29</span>
+                        <div style="font-size: 1.2rem; font-weight: 600; margin-bottom: 10px;">
+                            📅 2026-08-21 
+                            <span class="badge badge-source">serpapi_google</span>
+                            <span class="badge">PoS: Germany</span>
                         </div>
+                        
+                        <div>
+                            
+                                <span class="badge">Air India</span>
+                            
+                            <span style="color: var(--text-muted); font-size: 0.85rem;">Flight: AI 2026, AI 1793</span>
+                        </div>
+                        
                         <div class="details-grid">
                             <div class="detail-item">
-                                <strong>Departure</strong>
-                                2026-09-29
+                                <strong>Departure</strong> 2026-08-21
                             </div>
                             <div class="detail-item">
-                                <strong>Arrival</strong>
-                                2026-09-30
+                                <strong>Arrival</strong> 2026-08-22
                             </div>
                             <div class="detail-item">
-                                <strong>Duration</strong>
-                                16h 40m
+                                <strong>Duration</strong> 16h 40m
                             </div>
                             <div class="detail-item">
-                                <strong>Layovers</strong>
-                                1
+                                <strong>Stops</strong> 1
                             </div>
-                            <div class="detail-item">
-                                <strong>Point of Sale</strong>
-                                Germany
-                            </div>
-                        </div>
-                        <div style="margin-top: 15px;">
-                            
-                                <span class="airline-badge">Air India</span>
                             
                         </div>
+
+                        
                     </div>
+                    
                     <div class="price-section">
-                        <div class="price">€2843.0</div>
-                        <a href="https://www.google.com/travel/flights?q=Flights%20to%20HYD%20from%20FRA%20on%202026-09-29%20one-way" target="_blank" class="book-btn">Book Now</a>
+                        <div class="price">€2804</div>
+                        
+                        
+                        
+                            <a href="https://www.google.com/travel/flights?q=Flights%20to%20HYD%20from%20FRA%20on%202026-08-21%20one-way" target="_blank" class="book-btn">View Deal</a>
+                        
                     </div>
                 </div>
             
-                <div class="flight-card">
+                <div class="flight-card ">
                     <div class="route-info">
-                        <div class="route-path">
-                            <span>📅 2026-09-02</span>
+                        <div style="font-size: 1.2rem; font-weight: 600; margin-bottom: 10px;">
+                            📅 2026-09-10 
+                            <span class="badge badge-source">serpapi_google</span>
+                            <span class="badge">PoS: India</span>
                         </div>
+                        
+                        <div>
+                            
+                                <span class="badge">Air India</span>
+                            
+                            <span style="color: var(--text-muted); font-size: 0.85rem;">Flight: AI 2030, AI 2899</span>
+                        </div>
+                        
                         <div class="details-grid">
                             <div class="detail-item">
-                                <strong>Departure</strong>
-                                2026-09-02
+                                <strong>Departure</strong> 2026-09-10
                             </div>
                             <div class="detail-item">
-                                <strong>Arrival</strong>
-                                2026-09-03
+                                <strong>Arrival</strong> 2026-09-11
                             </div>
                             <div class="detail-item">
-                                <strong>Duration</strong>
-                                23h 0m
+                                <strong>Duration</strong> 14h 0m
                             </div>
                             <div class="detail-item">
-                                <strong>Layovers</strong>
-                                1
+                                <strong>Stops</strong> 1
                             </div>
-                            <div class="detail-item">
-                                <strong>Point of Sale</strong>
-                                Germany
-                            </div>
-                        </div>
-                        <div style="margin-top: 15px;">
-                            
-                                <span class="airline-badge">Air India</span>
-                            
-                                <span class="airline-badge">Air India Express</span>
                             
                         </div>
+
+                        
                     </div>
+                    
                     <div class="price-section">
-                        <div class="price">€2945.0</div>
-                        <a href="https://www.google.com/travel/flights?q=Flights%20to%20HYD%20from%20FRA%20on%202026-09-02%20one-way" target="_blank" class="book-btn">Book Now</a>
+                        <div class="price">€2927</div>
+                        
+                            <div class="price-orig">317535 INR</div>
+                        
+                        
+                        
+                            <a href="https://www.google.com/travel/flights?q=Flights%20to%20HYD%20from%20FRA%20on%202026-09-10%20one-way" target="_blank" class="book-btn">View Deal</a>
+                        
                     </div>
                 </div>
             
-                <div class="flight-card">
+                <div class="flight-card ">
                     <div class="route-info">
-                        <div class="route-path">
-                            <span>📅 2026-09-20</span>
+                        <div style="font-size: 1.2rem; font-weight: 600; margin-bottom: 10px;">
+                            📅 2026-09-30 
+                            <span class="badge badge-source">serpapi_google</span>
+                            <span class="badge">PoS: India</span>
                         </div>
+                        
+                        <div>
+                            
+                                <span class="badge">Air India Express</span>
+                            
+                                <span class="badge">Air India</span>
+                            
+                            <span style="color: var(--text-muted); font-size: 0.85rem;">Flight: AI 2028, IX 1512</span>
+                        </div>
+                        
                         <div class="details-grid">
                             <div class="detail-item">
-                                <strong>Departure</strong>
-                                2026-09-20
+                                <strong>Departure</strong> 2026-09-30
                             </div>
                             <div class="detail-item">
-                                <strong>Arrival</strong>
-                                2026-09-21
+                                <strong>Arrival</strong> 2026-10-01
                             </div>
                             <div class="detail-item">
-                                <strong>Duration</strong>
-                                28h 40m
+                                <strong>Duration</strong> 23h 0m
                             </div>
                             <div class="detail-item">
-                                <strong>Layovers</strong>
-                                1
+                                <strong>Stops</strong> 1
                             </div>
-                            <div class="detail-item">
-                                <strong>Point of Sale</strong>
-                                Germany
-                            </div>
-                        </div>
-                        <div style="margin-top: 15px;">
-                            
-                                <span class="airline-badge">Air India</span>
                             
                         </div>
+
+                        
                     </div>
+                    
                     <div class="price-section">
-                        <div class="price">€2951.0</div>
-                        <a href="https://www.google.com/travel/flights?q=Flights%20to%20HYD%20from%20FRA%20on%202026-09-20%20one-way" target="_blank" class="book-btn">Book Now</a>
+                        <div class="price">€2955</div>
+                        
+                            <div class="price-orig">320512 INR</div>
+                        
+                        
+                        
+                            <a href="https://www.google.com/travel/flights?q=Flights%20to%20HYD%20from%20FRA%20on%202026-09-30%20one-way" target="_blank" class="book-btn">View Deal</a>
+                        
                     </div>
                 </div>
             
-                <div class="flight-card">
+                <div class="flight-card ">
                     <div class="route-info">
-                        <div class="route-path">
-                            <span>📅 2026-07-01</span>
+                        <div style="font-size: 1.2rem; font-weight: 600; margin-bottom: 10px;">
+                            📅 2026-08-01 
+                            <span class="badge badge-source">serpapi_google</span>
+                            <span class="badge">PoS: Brazil</span>
                         </div>
+                        
+                        <div>
+                            
+                                <span class="badge">Etihad</span>
+                            
+                            <span style="color: var(--text-muted); font-size: 0.85rem;">Flight: EY 122, EY 352</span>
+                        </div>
+                        
                         <div class="details-grid">
                             <div class="detail-item">
-                                <strong>Departure</strong>
-                                2026-07-01
+                                <strong>Departure</strong> 2026-08-01
                             </div>
                             <div class="detail-item">
-                                <strong>Arrival</strong>
-                                2026-07-02
+                                <strong>Arrival</strong> 2026-08-02
                             </div>
                             <div class="detail-item">
-                                <strong>Duration</strong>
-                                12h 20m
+                                <strong>Duration</strong> 12h 20m
                             </div>
                             <div class="detail-item">
-                                <strong>Layovers</strong>
-                                1
+                                <strong>Stops</strong> 1
                             </div>
-                            <div class="detail-item">
-                                <strong>Point of Sale</strong>
-                                Germany
-                            </div>
-                        </div>
-                        <div style="margin-top: 15px;">
-                            
-                                <span class="airline-badge">Etihad</span>
                             
                         </div>
+
+                        
                     </div>
+                    
                     <div class="price-section">
-                        <div class="price">€2969.0</div>
-                        <a href="https://www.google.com/travel/flights?q=Flights%20to%20HYD%20from%20FRA%20on%202026-07-01%20one-way" target="_blank" class="book-btn">Book Now</a>
+                        <div class="price">€2956</div>
+                        
+                            <div class="price-orig">17449 BRL</div>
+                        
+                        
+                        
+                            <a href="https://www.google.com/travel/flights?q=Flights%20to%20HYD%20from%20FRA%20on%202026-08-01%20one-way" target="_blank" class="book-btn">View Deal</a>
+                        
                     </div>
                 </div>
             
-                <div class="flight-card">
+                <div class="flight-card ">
                     <div class="route-info">
-                        <div class="route-path">
-                            <span>📅 2026-07-19</span>
+                        <div style="font-size: 1.2rem; font-weight: 600; margin-bottom: 10px;">
+                            📅 2026-08-01 
+                            <span class="badge badge-source">serpapi_google</span>
+                            <span class="badge">PoS: Brazil</span>
                         </div>
+                        
+                        <div>
+                            
+                                <span class="badge">Etihad</span>
+                            
+                            <span style="color: var(--text-muted); font-size: 0.85rem;">Flight: EY 124, EY 358</span>
+                        </div>
+                        
                         <div class="details-grid">
                             <div class="detail-item">
-                                <strong>Departure</strong>
-                                2026-07-19
+                                <strong>Departure</strong> 2026-08-01
                             </div>
                             <div class="detail-item">
-                                <strong>Arrival</strong>
-                                2026-07-20
+                                <strong>Arrival</strong> 2026-08-02
                             </div>
                             <div class="detail-item">
-                                <strong>Duration</strong>
-                                18h 15m
+                                <strong>Duration</strong> 18h 15m
                             </div>
                             <div class="detail-item">
-                                <strong>Layovers</strong>
-                                1
+                                <strong>Stops</strong> 1
                             </div>
-                            <div class="detail-item">
-                                <strong>Point of Sale</strong>
-                                Germany
-                            </div>
-                        </div>
-                        <div style="margin-top: 15px;">
-                            
-                                <span class="airline-badge">Etihad</span>
                             
                         </div>
+
+                        
                     </div>
+                    
                     <div class="price-section">
-                        <div class="price">€2969.0</div>
-                        <a href="https://www.google.com/travel/flights?q=Flights%20to%20HYD%20from%20FRA%20on%202026-07-19%20one-way" target="_blank" class="book-btn">Book Now</a>
+                        <div class="price">€2956</div>
+                        
+                            <div class="price-orig">17449 BRL</div>
+                        
+                        
+                        
+                            <a href="https://www.google.com/travel/flights?q=Flights%20to%20HYD%20from%20FRA%20on%202026-08-01%20one-way" target="_blank" class="book-btn">View Deal</a>
+                        
                     </div>
                 </div>
             
-                <div class="flight-card">
+                <div class="flight-card ">
                     <div class="route-info">
-                        <div class="route-path">
-                            <span>📅 2026-07-28</span>
+                        <div style="font-size: 1.2rem; font-weight: 600; margin-bottom: 10px;">
+                            📅 2026-08-21 
+                            <span class="badge badge-source">serpapi_google</span>
+                            <span class="badge">PoS: Brazil</span>
                         </div>
+                        
+                        <div>
+                            
+                                <span class="badge">Etihad</span>
+                            
+                            <span style="color: var(--text-muted); font-size: 0.85rem;">Flight: EY 122, EY 352</span>
+                        </div>
+                        
                         <div class="details-grid">
                             <div class="detail-item">
-                                <strong>Departure</strong>
-                                2026-07-28
+                                <strong>Departure</strong> 2026-08-21
                             </div>
                             <div class="detail-item">
-                                <strong>Arrival</strong>
-                                2026-07-29
+                                <strong>Arrival</strong> 2026-08-22
                             </div>
                             <div class="detail-item">
-                                <strong>Duration</strong>
-                                12h 20m
+                                <strong>Duration</strong> 12h 20m
                             </div>
                             <div class="detail-item">
-                                <strong>Layovers</strong>
-                                1
+                                <strong>Stops</strong> 1
                             </div>
-                            <div class="detail-item">
-                                <strong>Point of Sale</strong>
-                                Germany
-                            </div>
-                        </div>
-                        <div style="margin-top: 15px;">
-                            
-                                <span class="airline-badge">Etihad</span>
                             
                         </div>
+
+                        
                     </div>
+                    
                     <div class="price-section">
-                        <div class="price">€2969.0</div>
-                        <a href="https://www.google.com/travel/flights?q=Flights%20to%20HYD%20from%20FRA%20on%202026-07-28%20one-way" target="_blank" class="book-btn">Book Now</a>
+                        <div class="price">€2956</div>
+                        
+                            <div class="price-orig">17449 BRL</div>
+                        
+                        
+                        
+                            <a href="https://www.google.com/travel/flights?q=Flights%20to%20HYD%20from%20FRA%20on%202026-08-21%20one-way" target="_blank" class="book-btn">View Deal</a>
+                        
                     </div>
                 </div>
             
-                <div class="flight-card">
+                <div class="flight-card ">
                     <div class="route-info">
-                        <div class="route-path">
-                            <span>📅 2026-08-06</span>
+                        <div style="font-size: 1.2rem; font-weight: 600; margin-bottom: 10px;">
+                            📅 2026-08-21 
+                            <span class="badge badge-source">serpapi_google</span>
+                            <span class="badge">PoS: Brazil</span>
                         </div>
+                        
+                        <div>
+                            
+                                <span class="badge">Etihad</span>
+                            
+                            <span style="color: var(--text-muted); font-size: 0.85rem;">Flight: EY 124, EY 358</span>
+                        </div>
+                        
                         <div class="details-grid">
                             <div class="detail-item">
-                                <strong>Departure</strong>
-                                2026-08-06
+                                <strong>Departure</strong> 2026-08-21
                             </div>
                             <div class="detail-item">
-                                <strong>Arrival</strong>
-                                2026-08-07
+                                <strong>Arrival</strong> 2026-08-22
                             </div>
                             <div class="detail-item">
-                                <strong>Duration</strong>
-                                12h 20m
+                                <strong>Duration</strong> 18h 15m
                             </div>
                             <div class="detail-item">
-                                <strong>Layovers</strong>
-                                1
+                                <strong>Stops</strong> 1
                             </div>
-                            <div class="detail-item">
-                                <strong>Point of Sale</strong>
-                                Germany
-                            </div>
-                        </div>
-                        <div style="margin-top: 15px;">
-                            
-                                <span class="airline-badge">Etihad</span>
                             
                         </div>
+
+                        
                     </div>
+                    
                     <div class="price-section">
-                        <div class="price">€2969.0</div>
-                        <a href="https://www.google.com/travel/flights?q=Flights%20to%20HYD%20from%20FRA%20on%202026-08-06%20one-way" target="_blank" class="book-btn">Book Now</a>
+                        <div class="price">€2956</div>
+                        
+                            <div class="price-orig">17449 BRL</div>
+                        
+                        
+                        
+                            <a href="https://www.google.com/travel/flights?q=Flights%20to%20HYD%20from%20FRA%20on%202026-08-21%20one-way" target="_blank" class="book-btn">View Deal</a>
+                        
                     </div>
                 </div>
             
-                <div class="flight-card">
+                <div class="flight-card ">
                     <div class="route-info">
-                        <div class="route-path">
-                            <span>📅 2026-08-15</span>
+                        <div style="font-size: 1.2rem; font-weight: 600; margin-bottom: 10px;">
+                            📅 2026-09-10 
+                            <span class="badge badge-source">serpapi_google</span>
+                            <span class="badge">PoS: Brazil</span>
                         </div>
+                        
+                        <div>
+                            
+                                <span class="badge">Etihad</span>
+                            
+                            <span style="color: var(--text-muted); font-size: 0.85rem;">Flight: EY 124, EY 358</span>
+                        </div>
+                        
                         <div class="details-grid">
                             <div class="detail-item">
-                                <strong>Departure</strong>
-                                2026-08-15
+                                <strong>Departure</strong> 2026-09-10
                             </div>
                             <div class="detail-item">
-                                <strong>Arrival</strong>
-                                2026-08-16
+                                <strong>Arrival</strong> 2026-09-11
                             </div>
                             <div class="detail-item">
-                                <strong>Duration</strong>
-                                18h 15m
+                                <strong>Duration</strong> 18h 15m
                             </div>
                             <div class="detail-item">
-                                <strong>Layovers</strong>
-                                1
+                                <strong>Stops</strong> 1
                             </div>
-                            <div class="detail-item">
-                                <strong>Point of Sale</strong>
-                                Germany
-                            </div>
-                        </div>
-                        <div style="margin-top: 15px;">
-                            
-                                <span class="airline-badge">Etihad</span>
                             
                         </div>
+
+                        
                     </div>
+                    
                     <div class="price-section">
-                        <div class="price">€2969.0</div>
-                        <a href="https://www.google.com/travel/flights?q=Flights%20to%20HYD%20from%20FRA%20on%202026-08-15%20one-way" target="_blank" class="book-btn">Book Now</a>
+                        <div class="price">€2956</div>
+                        
+                            <div class="price-orig">17449 BRL</div>
+                        
+                        
+                        
+                            <a href="https://www.google.com/travel/flights?q=Flights%20to%20HYD%20from%20FRA%20on%202026-09-10%20one-way" target="_blank" class="book-btn">View Deal</a>
+                        
                     </div>
                 </div>
             
-                <div class="flight-card">
+                <div class="flight-card ">
                     <div class="route-info">
-                        <div class="route-path">
-                            <span>📅 2026-08-24</span>
+                        <div style="font-size: 1.2rem; font-weight: 600; margin-bottom: 10px;">
+                            📅 2026-09-30 
+                            <span class="badge badge-source">serpapi_google</span>
+                            <span class="badge">PoS: Brazil</span>
                         </div>
+                        
+                        <div>
+                            
+                                <span class="badge">Etihad</span>
+                            
+                            <span style="color: var(--text-muted); font-size: 0.85rem;">Flight: EY 122, EY 352</span>
+                        </div>
+                        
                         <div class="details-grid">
                             <div class="detail-item">
-                                <strong>Departure</strong>
-                                2026-08-24
+                                <strong>Departure</strong> 2026-09-30
                             </div>
                             <div class="detail-item">
-                                <strong>Arrival</strong>
-                                2026-08-25
+                                <strong>Arrival</strong> 2026-10-01
                             </div>
                             <div class="detail-item">
-                                <strong>Duration</strong>
-                                18h 15m
+                                <strong>Duration</strong> 12h 20m
                             </div>
                             <div class="detail-item">
-                                <strong>Layovers</strong>
-                                1
+                                <strong>Stops</strong> 1
                             </div>
-                            <div class="detail-item">
-                                <strong>Point of Sale</strong>
-                                Germany
-                            </div>
-                        </div>
-                        <div style="margin-top: 15px;">
-                            
-                                <span class="airline-badge">Etihad</span>
                             
                         </div>
+
+                        
                     </div>
+                    
                     <div class="price-section">
-                        <div class="price">€2969.0</div>
-                        <a href="https://www.google.com/travel/flights?q=Flights%20to%20HYD%20from%20FRA%20on%202026-08-24%20one-way" target="_blank" class="book-btn">Book Now</a>
+                        <div class="price">€2956</div>
+                        
+                            <div class="price-orig">17449 BRL</div>
+                        
+                        
+                        
+                            <a href="https://www.google.com/travel/flights?q=Flights%20to%20HYD%20from%20FRA%20on%202026-09-30%20one-way" target="_blank" class="book-btn">View Deal</a>
+                        
                     </div>
                 </div>
             
-                <div class="flight-card">
+                <div class="flight-card ">
                     <div class="route-info">
-                        <div class="route-path">
-                            <span>📅 2026-09-02</span>
+                        <div style="font-size: 1.2rem; font-weight: 600; margin-bottom: 10px;">
+                            📅 2026-08-21 
+                            <span class="badge badge-source">serpapi_google</span>
+                            <span class="badge">PoS: India</span>
                         </div>
+                        
+                        <div>
+                            
+                                <span class="badge">Air India</span>
+                            
+                            <span style="color: var(--text-muted); font-size: 0.85rem;">Flight: AI 2026, AI 2560</span>
+                        </div>
+                        
                         <div class="details-grid">
                             <div class="detail-item">
-                                <strong>Departure</strong>
-                                2026-09-02
+                                <strong>Departure</strong> 2026-08-21
                             </div>
                             <div class="detail-item">
-                                <strong>Arrival</strong>
-                                2026-09-03
+                                <strong>Arrival</strong> 2026-08-22
                             </div>
                             <div class="detail-item">
-                                <strong>Duration</strong>
-                                12h 20m
+                                <strong>Duration</strong> 17h 40m
                             </div>
                             <div class="detail-item">
-                                <strong>Layovers</strong>
-                                1
+                                <strong>Stops</strong> 1
                             </div>
-                            <div class="detail-item">
-                                <strong>Point of Sale</strong>
-                                Germany
-                            </div>
-                        </div>
-                        <div style="margin-top: 15px;">
-                            
-                                <span class="airline-badge">Etihad</span>
                             
                         </div>
+
+                        
                     </div>
+                    
                     <div class="price-section">
-                        <div class="price">€2969.0</div>
-                        <a href="https://www.google.com/travel/flights?q=Flights%20to%20HYD%20from%20FRA%20on%202026-09-02%20one-way" target="_blank" class="book-btn">Book Now</a>
+                        <div class="price">€2972</div>
+                        
+                            <div class="price-orig">322388 INR</div>
+                        
+                        
+                        
+                            <a href="https://www.google.com/travel/flights?q=Flights%20to%20HYD%20from%20FRA%20on%202026-08-21%20one-way" target="_blank" class="book-btn">View Deal</a>
+                        
                     </div>
                 </div>
             
-                <div class="flight-card">
+                <div class="flight-card ">
                     <div class="route-info">
-                        <div class="route-path">
-                            <span>📅 2026-09-29</span>
+                        <div style="font-size: 1.2rem; font-weight: 600; margin-bottom: 10px;">
+                            📅 2026-08-01 
+                            <span class="badge badge-source">serpapi_google</span>
+                            <span class="badge">PoS: Germany</span>
                         </div>
+                        
+                        <div>
+                            
+                                <span class="badge">Air India</span>
+                            
+                            <span style="color: var(--text-muted); font-size: 0.85rem;">Flight: AI 2026, AI 1793</span>
+                        </div>
+                        
                         <div class="details-grid">
                             <div class="detail-item">
-                                <strong>Departure</strong>
-                                2026-09-29
+                                <strong>Departure</strong> 2026-08-01
                             </div>
                             <div class="detail-item">
-                                <strong>Arrival</strong>
-                                2026-09-30
+                                <strong>Arrival</strong> 2026-08-02
                             </div>
                             <div class="detail-item">
-                                <strong>Duration</strong>
-                                12h 20m
+                                <strong>Duration</strong> 16h 40m
                             </div>
                             <div class="detail-item">
-                                <strong>Layovers</strong>
-                                1
+                                <strong>Stops</strong> 1
                             </div>
-                            <div class="detail-item">
-                                <strong>Point of Sale</strong>
-                                Germany
-                            </div>
-                        </div>
-                        <div style="margin-top: 15px;">
-                            
-                                <span class="airline-badge">Etihad</span>
                             
                         </div>
+
+                        
                     </div>
+                    
                     <div class="price-section">
-                        <div class="price">€2969.0</div>
-                        <a href="https://www.google.com/travel/flights?q=Flights%20to%20HYD%20from%20FRA%20on%202026-09-29%20one-way" target="_blank" class="book-btn">Book Now</a>
+                        <div class="price">€3034</div>
+                        
+                        
+                        
+                            <a href="https://www.google.com/travel/flights?q=Flights%20to%20HYD%20from%20FRA%20on%202026-08-01%20one-way" target="_blank" class="book-btn">View Deal</a>
+                        
                     </div>
                 </div>
             
-                <div class="flight-card">
+                <div class="flight-card ">
                     <div class="route-info">
-                        <div class="route-path">
-                            <span>📅 2026-09-02</span>
+                        <div style="font-size: 1.2rem; font-weight: 600; margin-bottom: 10px;">
+                            📅 2026-09-30 
+                            <span class="badge badge-source">serpapi_google</span>
+                            <span class="badge">PoS: Brazil</span>
                         </div>
+                        
+                        <div>
+                            
+                                <span class="badge">SriLankan</span>
+                            
+                            <span style="color: var(--text-muted); font-size: 0.85rem;">Flight: UL 501, UL 175</span>
+                        </div>
+                        
                         <div class="details-grid">
                             <div class="detail-item">
-                                <strong>Departure</strong>
-                                2026-09-02
+                                <strong>Departure</strong> 2026-09-30
                             </div>
                             <div class="detail-item">
-                                <strong>Arrival</strong>
-                                2026-09-03
+                                <strong>Arrival</strong> 2026-10-01
                             </div>
                             <div class="detail-item">
-                                <strong>Duration</strong>
-                                24h 15m
+                                <strong>Duration</strong> 25h 15m
                             </div>
                             <div class="detail-item">
-                                <strong>Layovers</strong>
-                                1
+                                <strong>Stops</strong> 1
                             </div>
-                            <div class="detail-item">
-                                <strong>Point of Sale</strong>
-                                Germany
-                            </div>
-                        </div>
-                        <div style="margin-top: 15px;">
-                            
-                                <span class="airline-badge">SriLankan</span>
                             
                         </div>
+
+                        
                     </div>
+                    
                     <div class="price-section">
-                        <div class="price">€3058.0</div>
-                        <a href="https://www.google.com/travel/flights?q=Flights%20to%20HYD%20from%20FRA%20on%202026-09-02%20one-way" target="_blank" class="book-btn">Book Now</a>
+                        <div class="price">€3044</div>
+                        
+                            <div class="price-orig">17965 BRL</div>
+                        
+                        
+                        
+                            <a href="https://www.google.com/travel/flights?q=Flights%20to%20HYD%20from%20FRA%20on%202026-09-30%20one-way" target="_blank" class="book-btn">View Deal</a>
+                        
                     </div>
                 </div>
             
-                <div class="flight-card">
+                <div class="flight-card ">
                     <div class="route-info">
-                        <div class="route-path">
-                            <span>📅 2026-09-20</span>
+                        <div style="font-size: 1.2rem; font-weight: 600; margin-bottom: 10px;">
+                            📅 2026-08-21 
+                            <span class="badge badge-source">serpapi_google</span>
+                            <span class="badge">PoS: Germany</span>
                         </div>
+                        
+                        <div>
+                            
+                                <span class="badge">Air India</span>
+                            
+                            <span style="color: var(--text-muted); font-size: 0.85rem;">Flight: AI 2030, AI 2899</span>
+                        </div>
+                        
                         <div class="details-grid">
                             <div class="detail-item">
-                                <strong>Departure</strong>
-                                2026-09-20
+                                <strong>Departure</strong> 2026-08-21
                             </div>
                             <div class="detail-item">
-                                <strong>Arrival</strong>
-                                2026-09-21
+                                <strong>Arrival</strong> 2026-08-22
                             </div>
                             <div class="detail-item">
-                                <strong>Duration</strong>
-                                25h 15m
+                                <strong>Duration</strong> 14h 0m
                             </div>
                             <div class="detail-item">
-                                <strong>Layovers</strong>
-                                1
+                                <strong>Stops</strong> 1
                             </div>
-                            <div class="detail-item">
-                                <strong>Point of Sale</strong>
-                                Germany
-                            </div>
-                        </div>
-                        <div style="margin-top: 15px;">
-                            
-                                <span class="airline-badge">SriLankan</span>
                             
                         </div>
+
+                        
                     </div>
+                    
                     <div class="price-section">
-                        <div class="price">€3058.0</div>
-                        <a href="https://www.google.com/travel/flights?q=Flights%20to%20HYD%20from%20FRA%20on%202026-09-20%20one-way" target="_blank" class="book-btn">Book Now</a>
+                        <div class="price">€3074</div>
+                        
+                        
+                        
+                            <a href="https://www.google.com/travel/flights?q=Flights%20to%20HYD%20from%20FRA%20on%202026-08-21%20one-way" target="_blank" class="book-btn">View Deal</a>
+                        
                     </div>
                 </div>
             
-                <div class="flight-card">
+                <div class="flight-card ">
                     <div class="route-info">
-                        <div class="route-path">
-                            <span>📅 2026-08-15</span>
+                        <div style="font-size: 1.2rem; font-weight: 600; margin-bottom: 10px;">
+                            📅 2026-08-01 
+                            <span class="badge badge-source">serpapi_google</span>
+                            <span class="badge">PoS: Brazil</span>
                         </div>
+                        
+                        <div>
+                            
+                                <span class="badge">Air India</span>
+                            
+                            <span style="color: var(--text-muted); font-size: 0.85rem;">Flight: AI 2028, AI 2444</span>
+                        </div>
+                        
                         <div class="details-grid">
                             <div class="detail-item">
-                                <strong>Departure</strong>
-                                2026-08-15
+                                <strong>Departure</strong> 2026-08-01
                             </div>
                             <div class="detail-item">
-                                <strong>Arrival</strong>
-                                2026-08-16
+                                <strong>Arrival</strong> 2026-08-02
                             </div>
                             <div class="detail-item">
-                                <strong>Duration</strong>
-                                23h 0m
+                                <strong>Duration</strong> 12h 35m
                             </div>
                             <div class="detail-item">
-                                <strong>Layovers</strong>
-                                1
+                                <strong>Stops</strong> 1
                             </div>
-                            <div class="detail-item">
-                                <strong>Point of Sale</strong>
-                                India
-                            </div>
-                        </div>
-                        <div style="margin-top: 15px;">
-                            
-                                <span class="airline-badge">Air India</span>
-                            
-                                <span class="airline-badge">Air India Express</span>
                             
                         </div>
+
+                        
                     </div>
+                    
                     <div class="price-section">
-                        <div class="price">€3094.0</div>
-                        <a href="https://www.google.com/travel/flights?q=Flights%20to%20HYD%20from%20FRA%20on%202026-08-15%20one-way" target="_blank" class="book-btn">Book Now</a>
+                        <div class="price">€3075</div>
+                        
+                            <div class="price-orig">18146 BRL</div>
+                        
+                        
+                        
+                            <a href="https://www.google.com/travel/flights?q=Flights%20to%20HYD%20from%20FRA%20on%202026-08-01%20one-way" target="_blank" class="book-btn">View Deal</a>
+                        
                     </div>
                 </div>
             
-                <div class="flight-card">
+                <div class="flight-card ">
                     <div class="route-info">
-                        <div class="route-path">
-                            <span>📅 2026-09-11</span>
+                        <div style="font-size: 1.2rem; font-weight: 600; margin-bottom: 10px;">
+                            📅 2026-09-10 
+                            <span class="badge badge-source">serpapi_google</span>
+                            <span class="badge">PoS: Brazil</span>
                         </div>
+                        
+                        <div>
+                            
+                                <span class="badge">Air India</span>
+                            
+                            <span style="color: var(--text-muted); font-size: 0.85rem;">Flight: AI 2030, AI 2465</span>
+                        </div>
+                        
                         <div class="details-grid">
                             <div class="detail-item">
-                                <strong>Departure</strong>
-                                2026-09-11
+                                <strong>Departure</strong> 2026-09-10
                             </div>
                             <div class="detail-item">
-                                <strong>Arrival</strong>
-                                2026-09-13
+                                <strong>Arrival</strong> 2026-09-11
                             </div>
                             <div class="detail-item">
-                                <strong>Duration</strong>
-                                42h 0m
+                                <strong>Duration</strong> 15h 55m
                             </div>
                             <div class="detail-item">
-                                <strong>Layovers</strong>
-                                1
+                                <strong>Stops</strong> 1
                             </div>
-                            <div class="detail-item">
-                                <strong>Point of Sale</strong>
-                                Germany
-                            </div>
-                        </div>
-                        <div style="margin-top: 15px;">
-                            
-                                <span class="airline-badge">SriLankan</span>
                             
                         </div>
+
+                        
                     </div>
+                    
                     <div class="price-section">
-                        <div class="price">€3352.0</div>
-                        <a href="https://www.google.com/travel/flights?q=Flights%20to%20HYD%20from%20FRA%20on%202026-09-11%20one-way" target="_blank" class="book-btn">Book Now</a>
+                        <div class="price">€3115</div>
+                        
+                            <div class="price-orig">18384 BRL</div>
+                        
+                        
+                        
+                            <a href="https://www.google.com/travel/flights?q=Flights%20to%20HYD%20from%20FRA%20on%202026-09-10%20one-way" target="_blank" class="book-btn">View Deal</a>
+                        
                     </div>
                 </div>
             
-                <div class="flight-card">
+                <div class="flight-card ">
                     <div class="route-info">
-                        <div class="route-path">
-                            <span>📅 2026-07-10</span>
+                        <div style="font-size: 1.2rem; font-weight: 600; margin-bottom: 10px;">
+                            📅 2026-08-01 
+                            <span class="badge badge-source">serpapi_google</span>
+                            <span class="badge">PoS: Brazil</span>
                         </div>
+                        
+                        <div>
+                            
+                                <span class="badge">Air India Express</span>
+                            
+                                <span class="badge">Air India</span>
+                            
+                            <span style="color: var(--text-muted); font-size: 0.85rem;">Flight: AI 2028, IX 1512</span>
+                        </div>
+                        
                         <div class="details-grid">
                             <div class="detail-item">
-                                <strong>Departure</strong>
-                                2026-07-10
+                                <strong>Departure</strong> 2026-08-01
                             </div>
                             <div class="detail-item">
-                                <strong>Arrival</strong>
-                                2026-07-11
+                                <strong>Arrival</strong> 2026-08-02
                             </div>
                             <div class="detail-item">
-                                <strong>Duration</strong>
-                                18h 15m
+                                <strong>Duration</strong> 23h 0m
                             </div>
                             <div class="detail-item">
-                                <strong>Layovers</strong>
-                                1
+                                <strong>Stops</strong> 1
                             </div>
-                            <div class="detail-item">
-                                <strong>Point of Sale</strong>
-                                Germany
-                            </div>
-                        </div>
-                        <div style="margin-top: 15px;">
-                            
-                                <span class="airline-badge">Etihad</span>
                             
                         </div>
+
+                        
                     </div>
+                    
                     <div class="price-section">
-                        <div class="price">€3441.0</div>
-                        <a href="https://www.google.com/travel/flights?q=Flights%20to%20HYD%20from%20FRA%20on%202026-07-10%20one-way" target="_blank" class="book-btn">Book Now</a>
+                        <div class="price">€3204</div>
+                        
+                            <div class="price-orig">18909 BRL</div>
+                        
+                        
+                        
+                            <a href="https://www.google.com/travel/flights?q=Flights%20to%20HYD%20from%20FRA%20on%202026-08-01%20one-way" target="_blank" class="book-btn">View Deal</a>
+                        
                     </div>
                 </div>
             
-                <div class="flight-card">
+                <div class="flight-card ">
                     <div class="route-info">
-                        <div class="route-path">
-                            <span>📅 2026-09-11</span>
+                        <div style="font-size: 1.2rem; font-weight: 600; margin-bottom: 10px;">
+                            📅 2026-09-30 
+                            <span class="badge badge-source">serpapi_google</span>
+                            <span class="badge">PoS: Brazil</span>
                         </div>
+                        
+                        <div>
+                            
+                                <span class="badge">Etihad</span>
+                            
+                            <span style="color: var(--text-muted); font-size: 0.85rem;">Flight: EY 124, EY 358</span>
+                        </div>
+                        
                         <div class="details-grid">
                             <div class="detail-item">
-                                <strong>Departure</strong>
-                                2026-09-11
+                                <strong>Departure</strong> 2026-09-30
                             </div>
                             <div class="detail-item">
-                                <strong>Arrival</strong>
-                                2026-09-12
+                                <strong>Arrival</strong> 2026-10-01
                             </div>
                             <div class="detail-item">
-                                <strong>Duration</strong>
-                                29h 15m
+                                <strong>Duration</strong> 18h 15m
                             </div>
                             <div class="detail-item">
-                                <strong>Layovers</strong>
-                                1
+                                <strong>Stops</strong> 1
                             </div>
-                            <div class="detail-item">
-                                <strong>Point of Sale</strong>
-                                Germany
-                            </div>
-                        </div>
-                        <div style="margin-top: 15px;">
-                            
-                                <span class="airline-badge">Etihad</span>
                             
                         </div>
+
+                        
                     </div>
+                    
                     <div class="price-section">
-                        <div class="price">€3441.0</div>
-                        <a href="https://www.google.com/travel/flights?q=Flights%20to%20HYD%20from%20FRA%20on%202026-09-11%20one-way" target="_blank" class="book-btn">Book Now</a>
+                        <div class="price">€3277</div>
+                        
+                            <div class="price-orig">19341 BRL</div>
+                        
+                        
+                        
+                            <a href="https://www.google.com/travel/flights?q=Flights%20to%20HYD%20from%20FRA%20on%202026-09-30%20one-way" target="_blank" class="book-btn">View Deal</a>
+                        
                     </div>
                 </div>
             
-                <div class="flight-card">
+                <div class="flight-card ">
                     <div class="route-info">
-                        <div class="route-path">
-                            <span>📅 2026-08-24</span>
+                        <div style="font-size: 1.2rem; font-weight: 600; margin-bottom: 10px;">
+                            📅 2026-08-21 
+                            <span class="badge badge-source">serpapi_google</span>
+                            <span class="badge">PoS: India</span>
                         </div>
+                        
+                        <div>
+                            
+                                <span class="badge">SriLankan</span>
+                            
+                            <span style="color: var(--text-muted); font-size: 0.85rem;">Flight: UL 558, UL 177</span>
+                        </div>
+                        
                         <div class="details-grid">
                             <div class="detail-item">
-                                <strong>Departure</strong>
-                                2026-08-24
+                                <strong>Departure</strong> 2026-08-21
                             </div>
                             <div class="detail-item">
-                                <strong>Arrival</strong>
-                                2026-08-25
+                                <strong>Arrival</strong> 2026-08-23
                             </div>
                             <div class="detail-item">
-                                <strong>Duration</strong>
-                                18h 10m
+                                <strong>Duration</strong> 41h 0m
                             </div>
                             <div class="detail-item">
-                                <strong>Layovers</strong>
-                                2
+                                <strong>Stops</strong> 1
                             </div>
-                            <div class="detail-item">
-                                <strong>Point of Sale</strong>
-                                Germany
-                            </div>
-                        </div>
-                        <div style="margin-top: 15px;">
-                            
-                                <span class="airline-badge">Air India</span>
-                            
-                                <span class="airline-badge">LOT</span>
                             
                         </div>
+
+                        
                     </div>
+                    
                     <div class="price-section">
-                        <div class="price">€3589.0</div>
-                        <a href="https://www.google.com/travel/flights?q=Flights%20to%20HYD%20from%20FRA%20on%202026-08-24%20one-way" target="_blank" class="book-btn">Book Now</a>
+                        <div class="price">€3343</div>
+                        
+                            <div class="price-orig">362645 INR</div>
+                        
+                        
+                        
+                            <a href="https://www.google.com/travel/flights?q=Flights%20to%20HYD%20from%20FRA%20on%202026-08-21%20one-way" target="_blank" class="book-btn">View Deal</a>
+                        
                     </div>
                 </div>
             
-                <div class="flight-card">
+                <div class="flight-card ">
                     <div class="route-info">
-                        <div class="route-path">
-                            <span>📅 2026-09-02</span>
+                        <div style="font-size: 1.2rem; font-weight: 600; margin-bottom: 10px;">
+                            📅 2026-09-10 
+                            <span class="badge badge-source">serpapi_google</span>
+                            <span class="badge">PoS: Brazil</span>
                         </div>
+                        
+                        <div>
+                            
+                                <span class="badge">LOT</span>
+                            
+                                <span class="badge">Air India</span>
+                            
+                            <span style="color: var(--text-muted); font-size: 0.85rem;">Flight: LO 382, LO 71, AI 1793</span>
+                        </div>
+                        
                         <div class="details-grid">
                             <div class="detail-item">
-                                <strong>Departure</strong>
-                                2026-09-02
+                                <strong>Departure</strong> 2026-09-10
                             </div>
                             <div class="detail-item">
-                                <strong>Arrival</strong>
-                                2026-09-03
+                                <strong>Arrival</strong> 2026-09-11
                             </div>
                             <div class="detail-item">
-                                <strong>Duration</strong>
-                                18h 15m
+                                <strong>Duration</strong> 18h 15m
                             </div>
                             <div class="detail-item">
-                                <strong>Layovers</strong>
-                                2
+                                <strong>Stops</strong> 2
                             </div>
-                            <div class="detail-item">
-                                <strong>Point of Sale</strong>
-                                Brazil
-                            </div>
-                        </div>
-                        <div style="margin-top: 15px;">
-                            
-                                <span class="airline-badge">Air India</span>
-                            
-                                <span class="airline-badge">LOT</span>
                             
                         </div>
+
+                        
                     </div>
+                    
                     <div class="price-section">
-                        <div class="price">€3589.0</div>
-                        <a href="https://www.google.com/travel/flights?q=Flights%20to%20HYD%20from%20FRA%20on%202026-09-02%20one-way" target="_blank" class="book-btn">Book Now</a>
+                        <div class="price">€3573</div>
+                        
+                            <div class="price-orig">21085 BRL</div>
+                        
+                        
+                        
+                            <a href="https://www.google.com/travel/flights?q=Flights%20to%20HYD%20from%20FRA%20on%202026-09-10%20one-way" target="_blank" class="book-btn">View Deal</a>
+                        
                     </div>
                 </div>
             
-                <div class="flight-card">
+                <div class="flight-card ">
                     <div class="route-info">
-                        <div class="route-path">
-                            <span>📅 2026-09-11</span>
+                        <div style="font-size: 1.2rem; font-weight: 600; margin-bottom: 10px;">
+                            📅 2026-08-21 
+                            <span class="badge badge-source">serpapi_google</span>
+                            <span class="badge">PoS: India</span>
                         </div>
+                        
+                        <div>
+                            
+                                <span class="badge">LOT</span>
+                            
+                                <span class="badge">Air India</span>
+                            
+                            <span style="color: var(--text-muted); font-size: 0.85rem;">Flight: LO 382, LO 71, AI 1793</span>
+                        </div>
+                        
                         <div class="details-grid">
                             <div class="detail-item">
-                                <strong>Departure</strong>
-                                2026-09-11
+                                <strong>Departure</strong> 2026-08-21
                             </div>
                             <div class="detail-item">
-                                <strong>Arrival</strong>
-                                2026-09-12
+                                <strong>Arrival</strong> 2026-08-22
                             </div>
                             <div class="detail-item">
-                                <strong>Duration</strong>
-                                18h 15m
+                                <strong>Duration</strong> 18h 15m
                             </div>
                             <div class="detail-item">
-                                <strong>Layovers</strong>
-                                2
+                                <strong>Stops</strong> 2
                             </div>
-                            <div class="detail-item">
-                                <strong>Point of Sale</strong>
-                                Germany
-                            </div>
-                        </div>
-                        <div style="margin-top: 15px;">
-                            
-                                <span class="airline-badge">Air India</span>
-                            
-                                <span class="airline-badge">LOT</span>
                             
                         </div>
+
+                        
                     </div>
+                    
                     <div class="price-section">
-                        <div class="price">€3589.0</div>
-                        <a href="https://www.google.com/travel/flights?q=Flights%20to%20HYD%20from%20FRA%20on%202026-09-11%20one-way" target="_blank" class="book-btn">Book Now</a>
+                        <div class="price">€3641</div>
+                        
+                            <div class="price-orig">394948 INR</div>
+                        
+                        
+                        
+                            <a href="https://www.google.com/travel/flights?q=Flights%20to%20HYD%20from%20FRA%20on%202026-08-21%20one-way" target="_blank" class="book-btn">View Deal</a>
+                        
                     </div>
                 </div>
             
-                <div class="flight-card">
+                <div class="flight-card ">
                     <div class="route-info">
-                        <div class="route-path">
-                            <span>📅 2026-09-29</span>
+                        <div style="font-size: 1.2rem; font-weight: 600; margin-bottom: 10px;">
+                            📅 2026-09-10 
+                            <span class="badge badge-source">serpapi_google</span>
+                            <span class="badge">PoS: Brazil</span>
                         </div>
+                        
+                        <div>
+                            
+                                <span class="badge">Lufthansa</span>
+                            
+                                <span class="badge">LOT</span>
+                            
+                                <span class="badge">Air India</span>
+                            
+                            <span style="color: var(--text-muted); font-size: 0.85rem;">Flight: LH 1348, LO 71, AI 1793</span>
+                        </div>
+                        
                         <div class="details-grid">
                             <div class="detail-item">
-                                <strong>Departure</strong>
-                                2026-09-29
+                                <strong>Departure</strong> 2026-09-10
                             </div>
                             <div class="detail-item">
-                                <strong>Arrival</strong>
-                                2026-09-30
+                                <strong>Arrival</strong> 2026-09-11
                             </div>
                             <div class="detail-item">
-                                <strong>Duration</strong>
-                                18h 15m
+                                <strong>Duration</strong> 16h 55m
                             </div>
                             <div class="detail-item">
-                                <strong>Layovers</strong>
-                                2
+                                <strong>Stops</strong> 2
                             </div>
-                            <div class="detail-item">
-                                <strong>Point of Sale</strong>
-                                Germany
-                            </div>
-                        </div>
-                        <div style="margin-top: 15px;">
-                            
-                                <span class="airline-badge">Air India</span>
-                            
-                                <span class="airline-badge">LOT</span>
                             
                         </div>
+
+                        
                     </div>
+                    
                     <div class="price-section">
-                        <div class="price">€3589.0</div>
-                        <a href="https://www.google.com/travel/flights?q=Flights%20to%20HYD%20from%20FRA%20on%202026-09-29%20one-way" target="_blank" class="book-btn">Book Now</a>
+                        <div class="price">€3698</div>
+                        
+                            <div class="price-orig">21825 BRL</div>
+                        
+                        
+                        
+                            <a href="https://www.google.com/travel/flights?q=Flights%20to%20HYD%20from%20FRA%20on%202026-09-10%20one-way" target="_blank" class="book-btn">View Deal</a>
+                        
                     </div>
                 </div>
             
-                <div class="flight-card">
+                <div class="flight-card ">
                     <div class="route-info">
-                        <div class="route-path">
-                            <span>📅 2026-08-06</span>
+                        <div style="font-size: 1.2rem; font-weight: 600; margin-bottom: 10px;">
+                            📅 2026-08-21 
+                            <span class="badge badge-source">serpapi_google</span>
+                            <span class="badge">PoS: Germany</span>
                         </div>
+                        
+                        <div>
+                            
+                                <span class="badge">Lufthansa</span>
+                            
+                                <span class="badge">LOT</span>
+                            
+                                <span class="badge">Air India</span>
+                            
+                            <span style="color: var(--text-muted); font-size: 0.85rem;">Flight: LH 1348, LO 71, AI 1793</span>
+                        </div>
+                        
                         <div class="details-grid">
                             <div class="detail-item">
-                                <strong>Departure</strong>
-                                2026-08-06
+                                <strong>Departure</strong> 2026-08-21
                             </div>
                             <div class="detail-item">
-                                <strong>Arrival</strong>
-                                2026-08-07
+                                <strong>Arrival</strong> 2026-08-22
                             </div>
                             <div class="detail-item">
-                                <strong>Duration</strong>
-                                21h 40m
+                                <strong>Duration</strong> 17h 0m
                             </div>
                             <div class="detail-item">
-                                <strong>Layovers</strong>
-                                2
+                                <strong>Stops</strong> 2
                             </div>
-                            <div class="detail-item">
-                                <strong>Point of Sale</strong>
-                                Germany
-                            </div>
-                        </div>
-                        <div style="margin-top: 15px;">
-                            
-                                <span class="airline-badge">Air India</span>
-                            
-                                <span class="airline-badge">Lufthansa</span>
-                            
-                                <span class="airline-badge">LOT</span>
                             
                         </div>
+
+                        
                     </div>
+                    
                     <div class="price-section">
-                        <div class="price">€3715.0</div>
-                        <a href="https://www.google.com/travel/flights?q=Flights%20to%20HYD%20from%20FRA%20on%202026-08-06%20one-way" target="_blank" class="book-btn">Book Now</a>
+                        <div class="price">€3715</div>
+                        
+                        
+                        
+                            <a href="https://www.google.com/travel/flights?q=Flights%20to%20HYD%20from%20FRA%20on%202026-08-21%20one-way" target="_blank" class="book-btn">View Deal</a>
+                        
                     </div>
                 </div>
             
-                <div class="flight-card">
+                <div class="flight-card ">
                     <div class="route-info">
-                        <div class="route-path">
-                            <span>📅 2026-08-15</span>
+                        <div style="font-size: 1.2rem; font-weight: 600; margin-bottom: 10px;">
+                            📅 2026-08-21 
+                            <span class="badge badge-source">serpapi_google</span>
+                            <span class="badge">PoS: Germany</span>
                         </div>
+                        
+                        <div>
+                            
+                                <span class="badge">Oman Air</span>
+                            
+                            <span style="color: var(--text-muted); font-size: 0.85rem;">Flight: WY 118, WY 231</span>
+                        </div>
+                        
                         <div class="details-grid">
                             <div class="detail-item">
-                                <strong>Departure</strong>
-                                2026-08-15
+                                <strong>Departure</strong> 2026-08-21
                             </div>
                             <div class="detail-item">
-                                <strong>Arrival</strong>
-                                2026-08-16
+                                <strong>Arrival</strong> 2026-08-22
                             </div>
                             <div class="detail-item">
-                                <strong>Duration</strong>
-                                21h 40m
+                                <strong>Duration</strong> 17h 35m
                             </div>
                             <div class="detail-item">
-                                <strong>Layovers</strong>
-                                2
+                                <strong>Stops</strong> 1
                             </div>
-                            <div class="detail-item">
-                                <strong>Point of Sale</strong>
-                                Germany
-                            </div>
-                        </div>
-                        <div style="margin-top: 15px;">
-                            
-                                <span class="airline-badge">Air India</span>
-                            
-                                <span class="airline-badge">Lufthansa</span>
-                            
-                                <span class="airline-badge">LOT</span>
                             
                         </div>
+
+                        
                     </div>
+                    
                     <div class="price-section">
-                        <div class="price">€3715.0</div>
-                        <a href="https://www.google.com/travel/flights?q=Flights%20to%20HYD%20from%20FRA%20on%202026-08-15%20one-way" target="_blank" class="book-btn">Book Now</a>
+                        <div class="price">€3783</div>
+                        
+                        
+                        
+                            <a href="https://www.google.com/travel/flights?q=Flights%20to%20HYD%20from%20FRA%20on%202026-08-21%20one-way" target="_blank" class="book-btn">View Deal</a>
+                        
                     </div>
                 </div>
             
-                <div class="flight-card">
+                <div class="flight-card ">
                     <div class="route-info">
-                        <div class="route-path">
-                            <span>📅 2026-08-24</span>
+                        <div style="font-size: 1.2rem; font-weight: 600; margin-bottom: 10px;">
+                            📅 2026-09-30 
+                            <span class="badge badge-source">serpapi_google</span>
+                            <span class="badge">PoS: Germany</span>
                         </div>
+                        
+                        <div>
+                            
+                                <span class="badge">SriLankan</span>
+                            
+                                <span class="badge">Qatar Airways</span>
+                            
+                            <span style="color: var(--text-muted); font-size: 0.85rem;">Flight: QR 72, UL 218, UL 177</span>
+                        </div>
+                        
                         <div class="details-grid">
                             <div class="detail-item">
-                                <strong>Departure</strong>
-                                2026-08-24
+                                <strong>Departure</strong> 2026-09-30
                             </div>
                             <div class="detail-item">
-                                <strong>Arrival</strong>
-                                2026-08-25
+                                <strong>Arrival</strong> 2026-10-02
                             </div>
                             <div class="detail-item">
-                                <strong>Duration</strong>
-                                17h 0m
+                                <strong>Duration</strong> 35h 10m
                             </div>
                             <div class="detail-item">
-                                <strong>Layovers</strong>
-                                2
+                                <strong>Stops</strong> 2
                             </div>
-                            <div class="detail-item">
-                                <strong>Point of Sale</strong>
-                                Germany
-                            </div>
-                        </div>
-                        <div style="margin-top: 15px;">
-                            
-                                <span class="airline-badge">Air India</span>
-                            
-                                <span class="airline-badge">Lufthansa</span>
-                            
-                                <span class="airline-badge">LOT</span>
                             
                         </div>
+
+                        
                     </div>
+                    
                     <div class="price-section">
-                        <div class="price">€3715.0</div>
-                        <a href="https://www.google.com/travel/flights?q=Flights%20to%20HYD%20from%20FRA%20on%202026-08-24%20one-way" target="_blank" class="book-btn">Book Now</a>
+                        <div class="price">€3851</div>
+                        
+                        
+                        
+                            <a href="https://www.google.com/travel/flights?q=Flights%20to%20HYD%20from%20FRA%20on%202026-09-30%20one-way" target="_blank" class="book-btn">View Deal</a>
+                        
                     </div>
                 </div>
             
-                <div class="flight-card">
+                <div class="flight-card ">
                     <div class="route-info">
-                        <div class="route-path">
-                            <span>📅 2026-09-02</span>
+                        <div style="font-size: 1.2rem; font-weight: 600; margin-bottom: 10px;">
+                            📅 2026-08-01 
+                            <span class="badge badge-source">serpapi_google</span>
+                            <span class="badge">PoS: Germany</span>
                         </div>
+                        
+                        <div>
+                            
+                                <span class="badge">SriLankan</span>
+                            
+                                <span class="badge">Qatar Airways</span>
+                            
+                            <span style="color: var(--text-muted); font-size: 0.85rem;">Flight: QR 68, UL 218, UL 175</span>
+                        </div>
+                        
                         <div class="details-grid">
                             <div class="detail-item">
-                                <strong>Departure</strong>
-                                2026-09-02
+                                <strong>Departure</strong> 2026-08-01
                             </div>
                             <div class="detail-item">
-                                <strong>Arrival</strong>
-                                2026-09-03
+                                <strong>Arrival</strong> 2026-08-03
                             </div>
                             <div class="detail-item">
-                                <strong>Duration</strong>
-                                17h 0m
+                                <strong>Duration</strong> 47h 5m
                             </div>
                             <div class="detail-item">
-                                <strong>Layovers</strong>
-                                2
+                                <strong>Stops</strong> 2
                             </div>
-                            <div class="detail-item">
-                                <strong>Point of Sale</strong>
-                                Germany
-                            </div>
-                        </div>
-                        <div style="margin-top: 15px;">
-                            
-                                <span class="airline-badge">Air India</span>
-                            
-                                <span class="airline-badge">Lufthansa</span>
-                            
-                                <span class="airline-badge">LOT</span>
                             
                         </div>
+
+                        
                     </div>
+                    
                     <div class="price-section">
-                        <div class="price">€3715.0</div>
-                        <a href="https://www.google.com/travel/flights?q=Flights%20to%20HYD%20from%20FRA%20on%202026-09-02%20one-way" target="_blank" class="book-btn">Book Now</a>
+                        <div class="price">€4068</div>
+                        
+                        
+                        
+                            <a href="https://www.google.com/travel/flights?q=Flights%20to%20HYD%20from%20FRA%20on%202026-08-01%20one-way" target="_blank" class="book-btn">View Deal</a>
+                        
                     </div>
                 </div>
             
-                <div class="flight-card">
+                <div class="flight-card ">
                     <div class="route-info">
-                        <div class="route-path">
-                            <span>📅 2026-09-11</span>
+                        <div style="font-size: 1.2rem; font-weight: 600; margin-bottom: 10px;">
+                            📅 2026-08-21 
+                            <span class="badge badge-source">serpapi_google</span>
+                            <span class="badge">PoS: Brazil</span>
                         </div>
+                        
+                        <div>
+                            
+                                <span class="badge">KLM</span>
+                            
+                            <span style="color: var(--text-muted); font-size: 0.85rem;">Flight: KL 1814, KL 873</span>
+                        </div>
+                        
                         <div class="details-grid">
                             <div class="detail-item">
-                                <strong>Departure</strong>
-                                2026-09-11
+                                <strong>Departure</strong> 2026-08-21
                             </div>
                             <div class="detail-item">
-                                <strong>Arrival</strong>
-                                2026-09-12
+                                <strong>Arrival</strong> 2026-08-22
                             </div>
                             <div class="detail-item">
-                                <strong>Duration</strong>
-                                21h 40m
+                                <strong>Duration</strong> 13h 50m
                             </div>
                             <div class="detail-item">
-                                <strong>Layovers</strong>
-                                2
+                                <strong>Stops</strong> 1
                             </div>
-                            <div class="detail-item">
-                                <strong>Point of Sale</strong>
-                                Germany
-                            </div>
-                        </div>
-                        <div style="margin-top: 15px;">
-                            
-                                <span class="airline-badge">Air India</span>
-                            
-                                <span class="airline-badge">Lufthansa</span>
-                            
-                                <span class="airline-badge">LOT</span>
                             
                         </div>
+
+                        
                     </div>
+                    
                     <div class="price-section">
-                        <div class="price">€3715.0</div>
-                        <a href="https://www.google.com/travel/flights?q=Flights%20to%20HYD%20from%20FRA%20on%202026-09-11%20one-way" target="_blank" class="book-btn">Book Now</a>
+                        <div class="price">€4072</div>
+                        
+                            <div class="price-orig">24030 BRL</div>
+                        
+                        
+                        
+                            <a href="https://www.google.com/travel/flights?q=Flights%20to%20HYD%20from%20FRA%20on%202026-08-21%20one-way" target="_blank" class="book-btn">View Deal</a>
+                        
                     </div>
                 </div>
             
-                <div class="flight-card">
+                <div class="flight-card ">
                     <div class="route-info">
-                        <div class="route-path">
-                            <span>📅 2026-09-29</span>
+                        <div style="font-size: 1.2rem; font-weight: 600; margin-bottom: 10px;">
+                            📅 2026-09-10 
+                            <span class="badge badge-source">serpapi_google</span>
+                            <span class="badge">PoS: Brazil</span>
                         </div>
+                        
+                        <div>
+                            
+                                <span class="badge">IndiGo</span>
+                            
+                                <span class="badge">KLM</span>
+                            
+                            <span style="color: var(--text-muted); font-size: 0.85rem;">Flight: KL 1818, KL 871, 6E 203</span>
+                        </div>
+                        
                         <div class="details-grid">
                             <div class="detail-item">
-                                <strong>Departure</strong>
-                                2026-09-29
+                                <strong>Departure</strong> 2026-09-10
                             </div>
                             <div class="detail-item">
-                                <strong>Arrival</strong>
-                                2026-09-30
+                                <strong>Arrival</strong> 2026-09-11
                             </div>
                             <div class="detail-item">
-                                <strong>Duration</strong>
-                                21h 40m
+                                <strong>Duration</strong> 18h 5m
                             </div>
                             <div class="detail-item">
-                                <strong>Layovers</strong>
-                                2
+                                <strong>Stops</strong> 2
                             </div>
-                            <div class="detail-item">
-                                <strong>Point of Sale</strong>
-                                Germany
-                            </div>
-                        </div>
-                        <div style="margin-top: 15px;">
-                            
-                                <span class="airline-badge">Air India</span>
-                            
-                                <span class="airline-badge">Lufthansa</span>
-                            
-                                <span class="airline-badge">LOT</span>
                             
                         </div>
+
+                        
                     </div>
+                    
                     <div class="price-section">
-                        <div class="price">€3715.0</div>
-                        <a href="https://www.google.com/travel/flights?q=Flights%20to%20HYD%20from%20FRA%20on%202026-09-29%20one-way" target="_blank" class="book-btn">Book Now</a>
+                        <div class="price">€4072</div>
+                        
+                            <div class="price-orig">24030 BRL</div>
+                        
+                        
+                        
+                            <a href="https://www.google.com/travel/flights?q=Flights%20to%20HYD%20from%20FRA%20on%202026-09-10%20one-way" target="_blank" class="book-btn">View Deal</a>
+                        
                     </div>
                 </div>
             
-                <div class="flight-card">
+                <div class="flight-card ">
                     <div class="route-info">
-                        <div class="route-path">
-                            <span>📅 2026-08-24</span>
+                        <div style="font-size: 1.2rem; font-weight: 600; margin-bottom: 10px;">
+                            📅 2026-09-30 
+                            <span class="badge badge-source">serpapi_google</span>
+                            <span class="badge">PoS: Germany</span>
                         </div>
+                        
+                        <div>
+                            
+                                <span class="badge">Air India</span>
+                            
+                            <span style="color: var(--text-muted); font-size: 0.85rem;">Flight: AI 2028, AI 2444</span>
+                        </div>
+                        
                         <div class="details-grid">
                             <div class="detail-item">
-                                <strong>Departure</strong>
-                                2026-08-24
+                                <strong>Departure</strong> 2026-09-30
                             </div>
                             <div class="detail-item">
-                                <strong>Arrival</strong>
-                                2026-08-25
+                                <strong>Arrival</strong> 2026-10-01
                             </div>
                             <div class="detail-item">
-                                <strong>Duration</strong>
-                                16h 5m
+                                <strong>Duration</strong> 12h 35m
                             </div>
                             <div class="detail-item">
-                                <strong>Layovers</strong>
-                                1
+                                <strong>Stops</strong> 1
                             </div>
-                            <div class="detail-item">
-                                <strong>Point of Sale</strong>
-                                Germany
-                            </div>
-                        </div>
-                        <div style="margin-top: 15px;">
-                            
-                                <span class="airline-badge">Oman Air</span>
                             
                         </div>
+
+                        
                     </div>
+                    
                     <div class="price-section">
-                        <div class="price">€3783.0</div>
-                        <a href="https://www.google.com/travel/flights?q=Flights%20to%20HYD%20from%20FRA%20on%202026-08-24%20one-way" target="_blank" class="book-btn">Book Now</a>
+                        <div class="price">€4219</div>
+                        
+                        
+                        
+                            <a href="https://www.google.com/travel/flights?q=Flights%20to%20HYD%20from%20FRA%20on%202026-09-30%20one-way" target="_blank" class="book-btn">View Deal</a>
+                        
+                    </div>
+                </div>
+            
+                <div class="flight-card ">
+                    <div class="route-info">
+                        <div style="font-size: 1.2rem; font-weight: 600; margin-bottom: 10px;">
+                            📅 2026-09-30 
+                            <span class="badge badge-source">serpapi_google</span>
+                            <span class="badge">PoS: Germany</span>
+                        </div>
+                        
+                        <div>
+                            
+                                <span class="badge">Air India</span>
+                            
+                            <span style="color: var(--text-muted); font-size: 0.85rem;">Flight: AI 2026, AI 1793</span>
+                        </div>
+                        
+                        <div class="details-grid">
+                            <div class="detail-item">
+                                <strong>Departure</strong> 2026-09-30
+                            </div>
+                            <div class="detail-item">
+                                <strong>Arrival</strong> 2026-10-01
+                            </div>
+                            <div class="detail-item">
+                                <strong>Duration</strong> 16h 40m
+                            </div>
+                            <div class="detail-item">
+                                <strong>Stops</strong> 1
+                            </div>
+                            
+                        </div>
+
+                        
+                    </div>
+                    
+                    <div class="price-section">
+                        <div class="price">€4221</div>
+                        
+                        
+                        
+                            <a href="https://www.google.com/travel/flights?q=Flights%20to%20HYD%20from%20FRA%20on%202026-09-30%20one-way" target="_blank" class="book-btn">View Deal</a>
+                        
+                    </div>
+                </div>
+            
+                <div class="flight-card ">
+                    <div class="route-info">
+                        <div style="font-size: 1.2rem; font-weight: 600; margin-bottom: 10px;">
+                            📅 2026-09-30 
+                            <span class="badge badge-source">serpapi_google</span>
+                            <span class="badge">PoS: Germany</span>
+                        </div>
+                        
+                        <div>
+                            
+                                <span class="badge">Air India</span>
+                            
+                            <span style="color: var(--text-muted); font-size: 0.85rem;">Flight: AI 2030, AI 2899</span>
+                        </div>
+                        
+                        <div class="details-grid">
+                            <div class="detail-item">
+                                <strong>Departure</strong> 2026-09-30
+                            </div>
+                            <div class="detail-item">
+                                <strong>Arrival</strong> 2026-10-01
+                            </div>
+                            <div class="detail-item">
+                                <strong>Duration</strong> 14h 0m
+                            </div>
+                            <div class="detail-item">
+                                <strong>Stops</strong> 1
+                            </div>
+                            
+                        </div>
+
+                        
+                    </div>
+                    
+                    <div class="price-section">
+                        <div class="price">€4259</div>
+                        
+                        
+                        
+                            <a href="https://www.google.com/travel/flights?q=Flights%20to%20HYD%20from%20FRA%20on%202026-09-30%20one-way" target="_blank" class="book-btn">View Deal</a>
+                        
+                    </div>
+                </div>
+            
+                <div class="flight-card ">
+                    <div class="route-info">
+                        <div style="font-size: 1.2rem; font-weight: 600; margin-bottom: 10px;">
+                            📅 2026-08-01 
+                            <span class="badge badge-source">serpapi_google</span>
+                            <span class="badge">PoS: Brazil</span>
+                        </div>
+                        
+                        <div>
+                            
+                                <span class="badge">Qatar Airways</span>
+                            
+                            <span style="color: var(--text-muted); font-size: 0.85rem;">Flight: QR 70, QR 500</span>
+                        </div>
+                        
+                        <div class="details-grid">
+                            <div class="detail-item">
+                                <strong>Departure</strong> 2026-08-01
+                            </div>
+                            <div class="detail-item">
+                                <strong>Arrival</strong> 2026-08-02
+                            </div>
+                            <div class="detail-item">
+                                <strong>Duration</strong> 12h 55m
+                            </div>
+                            <div class="detail-item">
+                                <strong>Stops</strong> 1
+                            </div>
+                            
+                        </div>
+
+                        
+                    </div>
+                    
+                    <div class="price-section">
+                        <div class="price">€4413</div>
+                        
+                            <div class="price-orig">26045 BRL</div>
+                        
+                        
+                        
+                            <a href="https://www.google.com/travel/flights?q=Flights%20to%20HYD%20from%20FRA%20on%202026-08-01%20one-way" target="_blank" class="book-btn">View Deal</a>
+                        
+                    </div>
+                </div>
+            
+                <div class="flight-card ">
+                    <div class="route-info">
+                        <div style="font-size: 1.2rem; font-weight: 600; margin-bottom: 10px;">
+                            📅 2026-09-30 
+                            <span class="badge badge-source">serpapi_google</span>
+                            <span class="badge">PoS: Brazil</span>
+                        </div>
+                        
+                        <div>
+                            
+                                <span class="badge">Qatar Airways</span>
+                            
+                            <span style="color: var(--text-muted); font-size: 0.85rem;">Flight: QR 70, QR 500</span>
+                        </div>
+                        
+                        <div class="details-grid">
+                            <div class="detail-item">
+                                <strong>Departure</strong> 2026-09-30
+                            </div>
+                            <div class="detail-item">
+                                <strong>Arrival</strong> 2026-10-01
+                            </div>
+                            <div class="detail-item">
+                                <strong>Duration</strong> 12h 55m
+                            </div>
+                            <div class="detail-item">
+                                <strong>Stops</strong> 1
+                            </div>
+                            
+                        </div>
+
+                        
+                    </div>
+                    
+                    <div class="price-section">
+                        <div class="price">€4413</div>
+                        
+                            <div class="price-orig">26045 BRL</div>
+                        
+                        
+                        
+                            <a href="https://www.google.com/travel/flights?q=Flights%20to%20HYD%20from%20FRA%20on%202026-09-30%20one-way" target="_blank" class="book-btn">View Deal</a>
+                        
+                    </div>
+                </div>
+            
+                <div class="flight-card ">
+                    <div class="route-info">
+                        <div style="font-size: 1.2rem; font-weight: 600; margin-bottom: 10px;">
+                            📅 2026-08-01 
+                            <span class="badge badge-source">serpapi_google</span>
+                            <span class="badge">PoS: Brazil</span>
+                        </div>
+                        
+                        <div>
+                            
+                                <span class="badge">Qatar Airways</span>
+                            
+                            <span style="color: var(--text-muted); font-size: 0.85rem;">Flight: QR 68, QR 500</span>
+                        </div>
+                        
+                        <div class="details-grid">
+                            <div class="detail-item">
+                                <strong>Departure</strong> 2026-08-01
+                            </div>
+                            <div class="detail-item">
+                                <strong>Arrival</strong> 2026-08-03
+                            </div>
+                            <div class="detail-item">
+                                <strong>Duration</strong> 29h 15m
+                            </div>
+                            <div class="detail-item">
+                                <strong>Stops</strong> 1
+                            </div>
+                            
+                        </div>
+
+                        
+                    </div>
+                    
+                    <div class="price-section">
+                        <div class="price">€4417</div>
+                        
+                            <div class="price-orig">26072 BRL</div>
+                        
+                        
+                        
+                            <a href="https://www.google.com/travel/flights?q=Flights%20to%20HYD%20from%20FRA%20on%202026-08-01%20one-way" target="_blank" class="book-btn">View Deal</a>
+                        
+                    </div>
+                </div>
+            
+                <div class="flight-card ">
+                    <div class="route-info">
+                        <div style="font-size: 1.2rem; font-weight: 600; margin-bottom: 10px;">
+                            📅 2026-08-21 
+                            <span class="badge badge-source">serpapi_google</span>
+                            <span class="badge">PoS: India</span>
+                        </div>
+                        
+                        <div>
+                            
+                                <span class="badge">Qatar Airways</span>
+                            
+                            <span style="color: var(--text-muted); font-size: 0.85rem;">Flight: QR 70, QR 500</span>
+                        </div>
+                        
+                        <div class="details-grid">
+                            <div class="detail-item">
+                                <strong>Departure</strong> 2026-08-21
+                            </div>
+                            <div class="detail-item">
+                                <strong>Arrival</strong> 2026-08-22
+                            </div>
+                            <div class="detail-item">
+                                <strong>Duration</strong> 12h 55m
+                            </div>
+                            <div class="detail-item">
+                                <strong>Stops</strong> 1
+                            </div>
+                            
+                        </div>
+
+                        
+                    </div>
+                    
+                    <div class="price-section">
+                        <div class="price">€4421</div>
+                        
+                            <div class="price-orig">479544 INR</div>
+                        
+                        
+                        
+                            <a href="https://www.google.com/travel/flights?q=Flights%20to%20HYD%20from%20FRA%20on%202026-08-21%20one-way" target="_blank" class="book-btn">View Deal</a>
+                        
+                    </div>
+                </div>
+            
+                <div class="flight-card ">
+                    <div class="route-info">
+                        <div style="font-size: 1.2rem; font-weight: 600; margin-bottom: 10px;">
+                            📅 2026-08-01 
+                            <span class="badge badge-source">serpapi_google</span>
+                            <span class="badge">PoS: Germany</span>
+                        </div>
+                        
+                        <div>
+                            
+                                <span class="badge">Cathay Pacific</span>
+                            
+                            <span style="color: var(--text-muted); font-size: 0.85rem;">Flight: CX 288, CX 673</span>
+                        </div>
+                        
+                        <div class="details-grid">
+                            <div class="detail-item">
+                                <strong>Departure</strong> 2026-08-01
+                            </div>
+                            <div class="detail-item">
+                                <strong>Arrival</strong> 2026-08-03
+                            </div>
+                            <div class="detail-item">
+                                <strong>Duration</strong> 32h 25m
+                            </div>
+                            <div class="detail-item">
+                                <strong>Stops</strong> 1
+                            </div>
+                            
+                        </div>
+
+                        
+                    </div>
+                    
+                    <div class="price-section">
+                        <div class="price">€4430</div>
+                        
+                        
+                        
+                            <a href="https://www.google.com/travel/flights?q=Flights%20to%20HYD%20from%20FRA%20on%202026-08-01%20one-way" target="_blank" class="book-btn">View Deal</a>
+                        
+                    </div>
+                </div>
+            
+                <div class="flight-card ">
+                    <div class="route-info">
+                        <div style="font-size: 1.2rem; font-weight: 600; margin-bottom: 10px;">
+                            📅 2026-09-10 
+                            <span class="badge badge-source">serpapi_google</span>
+                            <span class="badge">PoS: Brazil</span>
+                        </div>
+                        
+                        <div>
+                            
+                                <span class="badge">Qatar Airways</span>
+                            
+                            <span style="color: var(--text-muted); font-size: 0.85rem;">Flight: QR 70, QR 500</span>
+                        </div>
+                        
+                        <div class="details-grid">
+                            <div class="detail-item">
+                                <strong>Departure</strong> 2026-09-10
+                            </div>
+                            <div class="detail-item">
+                                <strong>Arrival</strong> 2026-09-11
+                            </div>
+                            <div class="detail-item">
+                                <strong>Duration</strong> 12h 55m
+                            </div>
+                            <div class="detail-item">
+                                <strong>Stops</strong> 1
+                            </div>
+                            
+                        </div>
+
+                        
+                    </div>
+                    
+                    <div class="price-section">
+                        <div class="price">€4455</div>
+                        
+                            <div class="price-orig">26292 BRL</div>
+                        
+                        
+                        
+                            <a href="https://www.google.com/travel/flights?q=Flights%20to%20HYD%20from%20FRA%20on%202026-09-10%20one-way" target="_blank" class="book-btn">View Deal</a>
+                        
+                    </div>
+                </div>
+            
+                <div class="flight-card ">
+                    <div class="route-info">
+                        <div style="font-size: 1.2rem; font-weight: 600; margin-bottom: 10px;">
+                            📅 2026-09-10 
+                            <span class="badge badge-source">serpapi_google</span>
+                            <span class="badge">PoS: Brazil</span>
+                        </div>
+                        
+                        <div>
+                            
+                                <span class="badge">Lufthansa</span>
+                            
+                            <span style="color: var(--text-muted); font-size: 0.85rem;">Flight: LH 752</span>
+                        </div>
+                        
+                        <div class="details-grid">
+                            <div class="detail-item">
+                                <strong>Departure</strong> 2026-09-10
+                            </div>
+                            <div class="detail-item">
+                                <strong>Arrival</strong> 2026-09-11
+                            </div>
+                            <div class="detail-item">
+                                <strong>Duration</strong> 8h 45m
+                            </div>
+                            <div class="detail-item">
+                                <strong>Stops</strong> 0
+                            </div>
+                            
+                        </div>
+
+                        
+                    </div>
+                    
+                    <div class="price-section">
+                        <div class="price">€4804</div>
+                        
+                            <div class="price-orig">28354 BRL</div>
+                        
+                        
+                        
+                            <a href="https://www.google.com/travel/flights?q=Flights%20to%20HYD%20from%20FRA%20on%202026-09-10%20one-way" target="_blank" class="book-btn">View Deal</a>
+                        
+                    </div>
+                </div>
+            
+                <div class="flight-card ">
+                    <div class="route-info">
+                        <div style="font-size: 1.2rem; font-weight: 600; margin-bottom: 10px;">
+                            📅 2026-09-30 
+                            <span class="badge badge-source">serpapi_google</span>
+                            <span class="badge">PoS: Brazil</span>
+                        </div>
+                        
+                        <div>
+                            
+                                <span class="badge">Lufthansa</span>
+                            
+                            <span style="color: var(--text-muted); font-size: 0.85rem;">Flight: LH 752</span>
+                        </div>
+                        
+                        <div class="details-grid">
+                            <div class="detail-item">
+                                <strong>Departure</strong> 2026-09-30
+                            </div>
+                            <div class="detail-item">
+                                <strong>Arrival</strong> 2026-10-01
+                            </div>
+                            <div class="detail-item">
+                                <strong>Duration</strong> 8h 45m
+                            </div>
+                            <div class="detail-item">
+                                <strong>Stops</strong> 0
+                            </div>
+                            
+                        </div>
+
+                        
+                    </div>
+                    
+                    <div class="price-section">
+                        <div class="price">€4804</div>
+                        
+                            <div class="price-orig">28354 BRL</div>
+                        
+                        
+                        
+                            <a href="https://www.google.com/travel/flights?q=Flights%20to%20HYD%20from%20FRA%20on%202026-09-30%20one-way" target="_blank" class="book-btn">View Deal</a>
+                        
+                    </div>
+                </div>
+            
+                <div class="flight-card ">
+                    <div class="route-info">
+                        <div style="font-size: 1.2rem; font-weight: 600; margin-bottom: 10px;">
+                            📅 2026-08-21 
+                            <span class="badge badge-source">serpapi_google</span>
+                            <span class="badge">PoS: Brazil</span>
+                        </div>
+                        
+                        <div>
+                            
+                                <span class="badge">Lufthansa</span>
+                            
+                                <span class="badge">Air India</span>
+                            
+                            <span style="color: var(--text-muted); font-size: 0.85rem;">Flight: LH 756, AI 2625</span>
+                        </div>
+                        
+                        <div class="details-grid">
+                            <div class="detail-item">
+                                <strong>Departure</strong> 2026-08-21
+                            </div>
+                            <div class="detail-item">
+                                <strong>Arrival</strong> 2026-08-22
+                            </div>
+                            <div class="detail-item">
+                                <strong>Duration</strong> 15h 5m
+                            </div>
+                            <div class="detail-item">
+                                <strong>Stops</strong> 1
+                            </div>
+                            
+                        </div>
+
+                        
+                    </div>
+                    
+                    <div class="price-section">
+                        <div class="price">€4956</div>
+                        
+                            <div class="price-orig">29253 BRL</div>
+                        
+                        
+                        
+                            <a href="https://www.google.com/travel/flights?q=Flights%20to%20HYD%20from%20FRA%20on%202026-08-21%20one-way" target="_blank" class="book-btn">View Deal</a>
+                        
+                    </div>
+                </div>
+            
+                <div class="flight-card ">
+                    <div class="route-info">
+                        <div style="font-size: 1.2rem; font-weight: 600; margin-bottom: 10px;">
+                            📅 2026-08-21 
+                            <span class="badge badge-source">serpapi_google</span>
+                            <span class="badge">PoS: Brazil</span>
+                        </div>
+                        
+                        <div>
+                            
+                                <span class="badge">Emirates</span>
+                            
+                            <span style="color: var(--text-muted); font-size: 0.85rem;">Flight: EK 44, EK 524</span>
+                        </div>
+                        
+                        <div class="details-grid">
+                            <div class="detail-item">
+                                <strong>Departure</strong> 2026-08-21
+                            </div>
+                            <div class="detail-item">
+                                <strong>Arrival</strong> 2026-08-22
+                            </div>
+                            <div class="detail-item">
+                                <strong>Duration</strong> 12h 35m
+                            </div>
+                            <div class="detail-item">
+                                <strong>Stops</strong> 1
+                            </div>
+                            
+                        </div>
+
+                        
+                    </div>
+                    
+                    <div class="price-section">
+                        <div class="price">€5332</div>
+                        
+                            <div class="price-orig">31469 BRL</div>
+                        
+                        
+                        
+                            <a href="https://www.google.com/travel/flights?q=Flights%20to%20HYD%20from%20FRA%20on%202026-08-21%20one-way" target="_blank" class="book-btn">View Deal</a>
+                        
+                    </div>
+                </div>
+            
+                <div class="flight-card ">
+                    <div class="route-info">
+                        <div style="font-size: 1.2rem; font-weight: 600; margin-bottom: 10px;">
+                            📅 2026-08-21 
+                            <span class="badge badge-source">serpapi_google</span>
+                            <span class="badge">PoS: Brazil</span>
+                        </div>
+                        
+                        <div>
+                            
+                                <span class="badge">Emirates</span>
+                            
+                            <span style="color: var(--text-muted); font-size: 0.85rem;">Flight: EK 46, EK 526</span>
+                        </div>
+                        
+                        <div class="details-grid">
+                            <div class="detail-item">
+                                <strong>Departure</strong> 2026-08-21
+                            </div>
+                            <div class="detail-item">
+                                <strong>Arrival</strong> 2026-08-22
+                            </div>
+                            <div class="detail-item">
+                                <strong>Duration</strong> 13h 40m
+                            </div>
+                            <div class="detail-item">
+                                <strong>Stops</strong> 1
+                            </div>
+                            
+                        </div>
+
+                        
+                    </div>
+                    
+                    <div class="price-section">
+                        <div class="price">€5332</div>
+                        
+                            <div class="price-orig">31469 BRL</div>
+                        
+                        
+                        
+                            <a href="https://www.google.com/travel/flights?q=Flights%20to%20HYD%20from%20FRA%20on%202026-08-21%20one-way" target="_blank" class="book-btn">View Deal</a>
+                        
+                    </div>
+                </div>
+            
+                <div class="flight-card ">
+                    <div class="route-info">
+                        <div style="font-size: 1.2rem; font-weight: 600; margin-bottom: 10px;">
+                            📅 2026-08-21 
+                            <span class="badge badge-source">serpapi_google</span>
+                            <span class="badge">PoS: Brazil</span>
+                        </div>
+                        
+                        <div>
+                            
+                                <span class="badge">Emirates</span>
+                            
+                            <span style="color: var(--text-muted); font-size: 0.85rem;">Flight: EK 48, EK 528</span>
+                        </div>
+                        
+                        <div class="details-grid">
+                            <div class="detail-item">
+                                <strong>Departure</strong> 2026-08-21
+                            </div>
+                            <div class="detail-item">
+                                <strong>Arrival</strong> 2026-08-22
+                            </div>
+                            <div class="detail-item">
+                                <strong>Duration</strong> 18h 20m
+                            </div>
+                            <div class="detail-item">
+                                <strong>Stops</strong> 1
+                            </div>
+                            
+                        </div>
+
+                        
+                    </div>
+                    
+                    <div class="price-section">
+                        <div class="price">€5332</div>
+                        
+                            <div class="price-orig">31469 BRL</div>
+                        
+                        
+                        
+                            <a href="https://www.google.com/travel/flights?q=Flights%20to%20HYD%20from%20FRA%20on%202026-08-21%20one-way" target="_blank" class="book-btn">View Deal</a>
+                        
+                    </div>
+                </div>
+            
+                <div class="flight-card ">
+                    <div class="route-info">
+                        <div style="font-size: 1.2rem; font-weight: 600; margin-bottom: 10px;">
+                            📅 2026-08-01 
+                            <span class="badge badge-source">serpapi_google</span>
+                            <span class="badge">PoS: Brazil</span>
+                        </div>
+                        
+                        <div>
+                            
+                                <span class="badge">Emirates</span>
+                            
+                            <span style="color: var(--text-muted); font-size: 0.85rem;">Flight: EK 44, EK 524</span>
+                        </div>
+                        
+                        <div class="details-grid">
+                            <div class="detail-item">
+                                <strong>Departure</strong> 2026-08-01
+                            </div>
+                            <div class="detail-item">
+                                <strong>Arrival</strong> 2026-08-02
+                            </div>
+                            <div class="detail-item">
+                                <strong>Duration</strong> 12h 35m
+                            </div>
+                            <div class="detail-item">
+                                <strong>Stops</strong> 1
+                            </div>
+                            
+                        </div>
+
+                        
+                    </div>
+                    
+                    <div class="price-section">
+                        <div class="price">€5480</div>
+                        
+                            <div class="price-orig">32344 BRL</div>
+                        
+                        
+                        
+                            <a href="https://www.google.com/travel/flights?q=Flights%20to%20HYD%20from%20FRA%20on%202026-08-01%20one-way" target="_blank" class="book-btn">View Deal</a>
+                        
+                    </div>
+                </div>
+            
+                <div class="flight-card ">
+                    <div class="route-info">
+                        <div style="font-size: 1.2rem; font-weight: 600; margin-bottom: 10px;">
+                            📅 2026-08-21 
+                            <span class="badge badge-source">serpapi_google</span>
+                            <span class="badge">PoS: Brazil</span>
+                        </div>
+                        
+                        <div>
+                            
+                                <span class="badge">Gulf Air</span>
+                            
+                            <span style="color: var(--text-muted); font-size: 0.85rem;">Flight: GF 16, GF 274</span>
+                        </div>
+                        
+                        <div class="details-grid">
+                            <div class="detail-item">
+                                <strong>Departure</strong> 2026-08-21
+                            </div>
+                            <div class="detail-item">
+                                <strong>Arrival</strong> 2026-08-22
+                            </div>
+                            <div class="detail-item">
+                                <strong>Duration</strong> 12h 40m
+                            </div>
+                            <div class="detail-item">
+                                <strong>Stops</strong> 1
+                            </div>
+                            
+                        </div>
+
+                        
+                    </div>
+                    
+                    <div class="price-section">
+                        <div class="price">€5703</div>
+                        
+                            <div class="price-orig">33660 BRL</div>
+                        
+                        
+                        
+                            <a href="https://www.google.com/travel/flights?q=Flights%20to%20HYD%20from%20FRA%20on%202026-08-21%20one-way" target="_blank" class="book-btn">View Deal</a>
+                        
+                    </div>
+                </div>
+            
+                <div class="flight-card ">
+                    <div class="route-info">
+                        <div style="font-size: 1.2rem; font-weight: 600; margin-bottom: 10px;">
+                            📅 2026-09-10 
+                            <span class="badge badge-source">serpapi_google</span>
+                            <span class="badge">PoS: Brazil</span>
+                        </div>
+                        
+                        <div>
+                            
+                                <span class="badge">Etihad</span>
+                            
+                            <span style="color: var(--text-muted); font-size: 0.85rem;">Flight: EY 122, EY 352</span>
+                        </div>
+                        
+                        <div class="details-grid">
+                            <div class="detail-item">
+                                <strong>Departure</strong> 2026-09-10
+                            </div>
+                            <div class="detail-item">
+                                <strong>Arrival</strong> 2026-09-11
+                            </div>
+                            <div class="detail-item">
+                                <strong>Duration</strong> 12h 20m
+                            </div>
+                            <div class="detail-item">
+                                <strong>Stops</strong> 1
+                            </div>
+                            
+                        </div>
+
+                        
+                    </div>
+                    
+                    <div class="price-section">
+                        <div class="price">€6779</div>
+                        
+                            <div class="price-orig">40007 BRL</div>
+                        
+                        
+                        
+                            <a href="https://www.google.com/travel/flights?q=Flights%20to%20HYD%20from%20FRA%20on%202026-09-10%20one-way" target="_blank" class="book-btn">View Deal</a>
+                        
+                    </div>
+                </div>
+            
+                <div class="flight-card ">
+                    <div class="route-info">
+                        <div style="font-size: 1.2rem; font-weight: 600; margin-bottom: 10px;">
+                            📅 2026-08-01 
+                            <span class="badge badge-source">serpapi_google</span>
+                            <span class="badge">PoS: Brazil</span>
+                        </div>
+                        
+                        <div>
+                            
+                                <span class="badge">Lufthansa</span>
+                            
+                            <span style="color: var(--text-muted); font-size: 0.85rem;">Flight: LH 752</span>
+                        </div>
+                        
+                        <div class="details-grid">
+                            <div class="detail-item">
+                                <strong>Departure</strong> 2026-08-01
+                            </div>
+                            <div class="detail-item">
+                                <strong>Arrival</strong> 2026-08-02
+                            </div>
+                            <div class="detail-item">
+                                <strong>Duration</strong> 8h 45m
+                            </div>
+                            <div class="detail-item">
+                                <strong>Stops</strong> 0
+                            </div>
+                            
+                        </div>
+
+                        
+                    </div>
+                    
+                    <div class="price-section">
+                        <div class="price">€11568</div>
+                        
+                            <div class="price-orig">68276 BRL</div>
+                        
+                        
+                        
+                            <a href="https://www.google.com/travel/flights?q=Flights%20to%20HYD%20from%20FRA%20on%202026-08-01%20one-way" target="_blank" class="book-btn">View Deal</a>
+                        
                     </div>
                 </div>
             
