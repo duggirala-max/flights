@@ -4,9 +4,8 @@ from jinja2 import Environment, FileSystemLoader
 
 from src.config import load_config, load_api_keys
 from src.models import SearchConfig
-from src.sources.flyertalk_scraper import FlyerTalkScraper
-from src.sources.amadeus import AmadeusSource
-from src.sources.duffel import DuffelSource
+from src.sources.ota_deep_linker import OTADeepLinker
+from src.sources.skiplagged_scraper import SkiplaggedScraper
 from src.history import HistoryDB
 from src.aggregator import Aggregator
 
@@ -45,19 +44,11 @@ def main():
     config = load_config()
     keys = load_api_keys()
 
-    # Initialize sources
-    sources = []
-    # Always include the forum scraper for error fares
-    sources.append(FlyerTalkScraper())
-
-    if keys.amadeus_client_id and keys.amadeus_client_secret:
-        sources.append(AmadeusSource())
-    if keys.duffel_token:
-        sources.append(DuffelSource())
-
-    if not sources:
-        print("No API keys found. Exiting.")
-        return
+    # Initialize sources (Hacker/Unconventional Strategy)
+    sources = [
+        OTADeepLinker(),
+        SkiplaggedScraper()
+    ]
 
     # Initialize DB
     db = HistoryDB()
