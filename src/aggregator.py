@@ -4,6 +4,7 @@ from .sources.base import FlightSource
 from .currency import CurrencyConverter
 from .anomaly import AnomalyDetector
 from .history import HistoryDB
+from .filtering import OfferFilter
 
 class Aggregator:
     def __init__(self, sources: List[FlightSource], db: HistoryDB):
@@ -26,6 +27,12 @@ class Aggregator:
         # 1. Normalize currency
         for offer in all_offers:
             offer.price_eur = self.currency_conv.to_eur(offer.price_original, offer.currency_original)
+
+        # 1.5 Safety Guardrails & Passenger Math
+        all_offers = OfferFilter.filter_and_validate(all_offers, config)
+
+        if not all_offers:
+            return []
 
         # 2. Deduplicate
         deduped = self._deduplicate(all_offers)

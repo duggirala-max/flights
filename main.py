@@ -4,7 +4,7 @@ from jinja2 import Environment, FileSystemLoader
 
 from src.config import load_config, load_api_keys
 from src.models import SearchConfig
-from src.sources.serpapi_google import SerpApiGoogleSource
+from src.sources.flyertalk_scraper import FlyerTalkScraper
 from src.sources.amadeus import AmadeusSource
 from src.sources.duffel import DuffelSource
 from src.history import HistoryDB
@@ -47,8 +47,9 @@ def main():
 
     # Initialize sources
     sources = []
-    if keys.serpapi_key:
-        sources.append(SerpApiGoogleSource())
+    # Always include the forum scraper for error fares
+    sources.append(FlyerTalkScraper())
+
     if keys.amadeus_client_id and keys.amadeus_client_secret:
         sources.append(AmadeusSource())
     if keys.duffel_token:
@@ -67,14 +68,6 @@ def main():
     best_flights = aggregator.run(config, keys)
 
     print(f"Found {len(best_flights)} deduplicated flights.")
-
-    # Resolve deep links for the absolute best 5 flights to give direct checkout links
-    # and save SerpApi credits on the rest (which will use the filtered Google Flights search link)
-    if keys.serpapi_key:
-        print("Resolving deep booking links for the top 5 flights...")
-        for flight in best_flights[:5]:
-            if flight.source == "serpapi_google":
-                SerpApiGoogleSource.resolve_booking_link(flight, keys.serpapi_key)
 
     # Generate Output
     generate_html(best_flights, config)

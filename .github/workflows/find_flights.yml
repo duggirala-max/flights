@@ -1,8 +1,6 @@
 name: Find Flight Deals (Stealth/GDS)
 
 on:
-  schedule:
-    - cron: '0 6 * * *' # Run daily at 06:00 UTC
   workflow_dispatch:
     inputs:
       date_from:
