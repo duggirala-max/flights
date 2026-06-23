@@ -173,21 +173,24 @@
                             <div class="detail-item">
                                 <strong>Departure</strong> {{ flight.departure_time }}
                             </div>
-                            <div class="detail-item">
-                                <strong>Arrival</strong> {{ flight.arrival_time }}
+                            <div class="mt-6 sm:mt-0 sm:ml-6 flex flex-col justify-center">
+                                {% if flight.is_award_mapped %}
+                                <a href="{{ flight.award_search_url }}" target="_blank" class="inline-flex justify-center items-center px-6 py-3 border border-transparent text-sm font-medium rounded-lg shadow-sm text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 transition-colors">
+                                    Search Award Flight
+                                    <svg class="ml-2 -mr-1 w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg>
+                                </a>
+                                {% else %}
+                                <a href="{{ flight.booking_url or '#' }}" target="_blank" class="inline-flex justify-center items-center px-6 py-3 border border-transparent text-sm font-medium rounded-lg shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors">
+                                    View Cash Deal
+                                    <svg class="ml-2 -mr-1 w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg>
+                                </a>
+                                {% endif %}
+                                {% if flight.anomaly_reasons %}
+                                <div class="mt-3 text-xs text-gray-500 max-w-xs">
+                                    {{ flight.anomaly_reasons | join(', ') }}
+                                </div>
+                                {% endif %}
                             </div>
-                            <div class="detail-item">
-                                <strong>Duration</strong> {{ flight.duration_minutes // 60 }}h {{ flight.duration_minutes % 60 }}m
-                            </div>
-                            <div class="detail-item">
-                                <strong>Stops</strong> {{ flight.stops }}
-                            </div>
-                            {% if flight.fare_basis %}
-                            <div class="detail-item">
-                                <strong>Fare Basis</strong> {{ flight.fare_basis }}
-                            </div>
-                            {% endif %}
-                        </div>
 
                         {% if flight.anomaly_reasons %}
                         <div class="alert-box">
@@ -202,24 +205,39 @@
                     </div>
                     
                     <div class="price-section" style="text-align: right;">
-                        <div style="font-size: 0.9rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 4px;">Total For Party</div>
-                        <div class="price">€{{ "%.0f"|format(flight.price_eur) }}</div>
-                        
-                        <div style="font-size: 1.1rem; color: #60A5FA; margin-bottom: 12px; font-weight: 500;">
-                            ( ~€{{ "%.0f"|format(flight.raw_data.price_per_adult|default(flight.price_eur/2)) }} / Adult )
-                        </div>
-
-                        {% if flight.currency_original != 'EUR' %}
-                            <div class="price-orig">Original: {{ "%.0f"|format(flight.price_original) }} {{ flight.currency_original }}</div>
-                        {% endif %}
-                        
-                        {% if flight.booking_method == 'GET' %}
-                            <a href="{{ flight.booking_url }}" target="_blank" class="book-btn">View Deal</a>
+                        {% if flight.is_award_mapped %}
+                            <div style="font-size: 0.9rem; color: #D8B4FE; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 4px; font-weight: bold;">
+                                {{ flight.award_program }}
+                            </div>
+                            <div class="price" style="font-size: 1.8rem; color: #C084FC;">
+                                {{ "{:,.0f}".format(flight.award_miles) }} Miles
+                            </div>
+                            <div style="font-size: 1.1rem; color: #F3E8FF; margin-bottom: 6px; font-weight: 500;">
+                                + €{{ "{:,.0f}".format(flight.award_taxes_eur) }} Taxes
+                            </div>
+                            <div style="font-size: 0.8rem; color: #A78BFA; margin-bottom: 12px;">
+                                Transfers: {{ ", ".join(flight.transfer_partners) }}<br>
+                                Cash Equivalent: €{{ "%.0f"|format(flight.price_eur) }}
+                            </div>
+                            <a href="{{ flight.award_search_url }}" target="_blank" class="book-btn" style="background-color: #9333EA;">Search Award Flight</a>
                         {% else %}
-                            <form action="{{ flight.booking_url }}" method="POST" target="_blank" style="width: 100%;">
-                                <input type="hidden" name="post_data" value="{{ flight.booking_post_data }}">
-                                <button type="submit" class="book-btn">View Deal</button>
-                            </form>
+                            <div style="font-size: 0.9rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 4px;">Total For Party</div>
+                            <div class="price">€{{ "%.0f"|format(flight.price_eur) }}</div>
+                            <div style="font-size: 1.1rem; color: #60A5FA; margin-bottom: 12px; font-weight: 500;">
+                                ( ~€{{ "%.0f"|format(flight.raw_data.price_per_adult|default(flight.price_eur/2)) }} / Adult )
+                            </div>
+                            {% if flight.currency_original != 'EUR' %}
+                                <div class="price-orig">Original: {{ "%.0f"|format(flight.price_original) }} {{ flight.currency_original }}</div>
+                            {% endif %}
+                            
+                            {% if flight.booking_method == 'GET' %}
+                                <a href="{{ flight.booking_url }}" target="_blank" class="book-btn">View Cash Deal</a>
+                            {% else %}
+                                <form action="{{ flight.booking_url }}" method="POST" target="_blank" style="width: 100%;">
+                                    <input type="hidden" name="post_data" value="{{ flight.booking_post_data }}">
+                                    <button type="submit" class="book-btn">View Cash Deal</button>
+                                </form>
+                            {% endif %}
                         {% endif %}
                     </div>
                 </div>

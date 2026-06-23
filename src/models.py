@@ -43,3 +43,11 @@ class FlightOffer:
     raw_data: Dict[str, Any] # Full API response for debugging
     anomaly_score: int = 0
     anomaly_reasons: List[str] = field(default_factory=list)
+    
+    # Award Arbitrage Fields
+    is_award_mapped: bool = False
+    award_program: Optional[str] = None
+    award_miles: Optional[int] = None
+    award_taxes_eur: Optional[float] = None
+    transfer_partners: List[str] = field(default_factory=list)
+    award_search_url: Optional[str] = None

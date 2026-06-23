@@ -4,7 +4,6 @@ from jinja2 import Environment, FileSystemLoader
 
 from src.config import load_config, load_api_keys
 from src.models import SearchConfig
-from src.sources.ota_deep_linker import OTADeepLinker
 from src.sources.skiplagged_scraper import SkiplaggedScraper
 from src.history import HistoryDB
 from src.aggregator import Aggregator
@@ -44,9 +43,8 @@ def main():
     config = load_config()
     keys = load_api_keys()
 
-    # Initialize sources (Hacker/Unconventional Strategy)
+    # Initialize sources (Award Arbitrage Discovery Strategy)
     sources = [
-        OTADeepLinker(),
         SkiplaggedScraper()
     ]
 
