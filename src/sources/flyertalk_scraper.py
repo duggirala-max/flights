@@ -1,9 +1,9 @@
-import urllib.request
 import xml.etree.ElementTree as ET
 from typing import List
 from ..models import SearchConfig, APIKeys, FlightOffer
 from .base import FlightSource
 import re
+from curl_cffi import requests
 
 class FlyerTalkScraper(FlightSource):
     def name(self) -> str:
@@ -16,9 +16,13 @@ class FlyerTalkScraper(FlightSource):
         
         print(f"FlyerTalk Scraper: Fetching RSS from {url}")
         try:
-            req = urllib.request.Request(url, headers={'User-Agent': 'Mozilla/5.0'})
-            resp = urllib.request.urlopen(req, timeout=10)
-            xml_data = resp.read()
+            # Impersonate Chrome to bypass Cloudflare
+            resp = requests.get(url, impersonate="chrome110", timeout=15)
+            if resp.status_code != 200:
+                print(f"FlyerTalk Scraper Error: HTTP {resp.status_code}")
+                return offers
+                
+            xml_data = resp.content
             root = ET.fromstring(xml_data)
             
             for item in root.findall('./channel/item'):
@@ -66,11 +70,6 @@ class FlyerTalkScraper(FlightSource):
                     booking_post_data=None,
                     raw_data={"title": title}
                 ))
-        except urllib.error.HTTPError as e:
-            if e.code == 403:
-                print(f"FlyerTalk Scraper: Blocked by Cloudflare (403 Forbidden). Skipping.")
-            else:
-                print(f"FlyerTalk Scraper HTTP Error: {e}")
         except Exception as e:
             print(f"FlyerTalk Scraper Error: {e}")
             
