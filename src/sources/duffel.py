@@ -91,7 +91,7 @@ class DuffelSource(FlightSource):
             if not segments: return None
             
             airlines = list(set([seg.get("operating_carrier", {}).get("iata_code", "Unknown") for seg in segments if seg.get("operating_carrier")]))
-            flight_numbers = [seg.get("operating_carrier_flight_number", "Unknown") for seg in segments]
+            flight_numbers = [str(seg.get("operating_carrier_flight_number") or "Unknown") for seg in segments]
             
             # Parse duration from ISO 8601 string
             duration_iso = slices[0].get("duration", "PT0H0M")
