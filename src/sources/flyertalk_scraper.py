@@ -66,6 +66,11 @@ class FlyerTalkScraper(FlightSource):
                     booking_post_data=None,
                     raw_data={"title": title}
                 ))
+        except urllib.error.HTTPError as e:
+            if e.code == 403:
+                print(f"FlyerTalk Scraper: Blocked by Cloudflare (403 Forbidden). Skipping.")
+            else:
+                print(f"FlyerTalk Scraper HTTP Error: {e}")
         except Exception as e:
             print(f"FlyerTalk Scraper Error: {e}")
             

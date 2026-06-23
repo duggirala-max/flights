@@ -29,7 +29,7 @@ class DuffelSource(FlightSource):
 
         headers = {
             "Authorization": f"Bearer {keys.duffel_token}",
-            "Duffel-Version": "v1",
+            "Duffel-Version": "v2",
             "Content-Type": "application/json"
         }
 
