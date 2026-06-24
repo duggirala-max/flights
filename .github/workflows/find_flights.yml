@@ -69,10 +69,7 @@ jobs:
 
       - name: Run Stealth Flight Sweep
         env:
-          SERPAPI_KEY: ${{ secrets.SERPAPI_KEY }}
-          AMADEUS_CLIENT_ID: ${{ secrets.AMADEUS_CLIENT_ID }}
-          AMADEUS_CLIENT_SECRET: ${{ secrets.AMADEUS_CLIENT_SECRET }}
-          DUFFEL_TOKEN: ${{ secrets.DUFFEL_TOKEN }}
+          SEATS_AERO_KEY: ${{ secrets.SEATS_AERO_KEY }}
           DATE_FROM: ${{ inputs.date_from || '2026-07-01' }}
           DATE_TO: ${{ inputs.date_to || '2026-08-31' }}
           CABIN_CLASS: ${{ inputs.cabin_class || 'business' }}

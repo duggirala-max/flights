@@ -24,7 +24,6 @@ def load_config() -> SearchConfig:
 def load_api_keys() -> APIKeys:
     return APIKeys(
         serpapi_key=os.environ.get("SERPAPI_KEY"),
-        amadeus_client_id=os.environ.get("AMADEUS_CLIENT_ID"),
-        amadeus_client_secret=os.environ.get("AMADEUS_CLIENT_SECRET"),
-        duffel_token=os.environ.get("DUFFEL_TOKEN")
+        duffel_token=os.environ.get("DUFFEL_TOKEN"),
+        seats_aero_key=os.environ.get("SEATS_AERO_KEY")
     )
