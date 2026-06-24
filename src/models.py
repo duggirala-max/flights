@@ -5,8 +5,7 @@ from typing import List, Optional, Dict, Any
 class SearchConfig:
     origin: str
     destination: str
-    date_from: str
-    date_to: str
+    target_months: List[str]
     cabin_class: str
     adults: int = 2
     infants_on_lap: int = 1

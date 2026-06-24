@@ -1,5 +1,6 @@
 import requests
 import json
+import calendar
 from datetime import datetime
 from typing import List, Optional
 from ..models import SearchConfig, APIKeys, FlightOffer
@@ -13,7 +14,7 @@ class SeatsAeroSource(FlightSource):
         return "seats_aero"
 
     def search(self, config: SearchConfig, keys: APIKeys) -> List[FlightOffer]:
-        print("Seats.aero: Searching for Award Flights...")
+        print(f"Seats.aero: Searching for Award Flights for months: {config.target_months}")
         offers = []
         
         if not keys.seats_aero_key:
@@ -30,24 +31,24 @@ class SeatsAeroSource(FlightSource):
 
         url = "https://seats.aero/partnerapi/search"
 
-        # Map our generic cabin class to seats.aero format
-        cabin_mapping = {
-            "business": "business",
-            "economy": "economy",
-            "first": "first",
-            "premium economy": "premium"
-        }
-        cabin = cabin_mapping.get(config.cabin_class.lower(), "business")
+        for month_str in config.target_months:
+            try:
+                year, month = map(int, month_str.split('-'))
+                last_day = calendar.monthrange(year, month)[1]
+                start_date = f"{year}-{month:02d}-01"
+                end_date = f"{year}-{month:02d}-{last_day}"
+            except Exception as e:
+                print(f"Invalid month format: {month_str} ({e})")
+                continue
 
-        for program in self.programs:
-            print(f"Seats.aero: Querying {program}...")
+            print(f"Seats.aero: Querying {start_date} to {end_date}...")
             params = {
-                "origin": config.origin,
-                "destination": config.destination,
-                "cabin": cabin,
-                "source": program,
-                "start_date": config.date_from,
-                "end_date": config.date_to
+                "origin_airport": config.origin,
+                "destination_airport": config.destination,
+                "start_date": start_date,
+                "end_date": end_date,
+                "take": 1000,
+                "order_by": "lowest_mileage"
             }
 
             try:
@@ -57,17 +58,22 @@ class SeatsAeroSource(FlightSource):
                     items = data.get("data", data) if isinstance(data, dict) else data
                     
                     if not items:
+                        print(f"Seats.aero: Found 0 items for {month_str}")
                         continue
                         
                     for item in items:
+                        program = str(item.get("Source", "unknown")).lower()
+                        if program not in self.programs:
+                            continue
+
                         parsed = self._parse_offer(item, program, config)
                         if parsed:
                             offers.append(parsed)
                 else:
-                    print(f"Seats.aero API error for {program}: {resp.status_code} - {resp.text}")
+                    print(f"Seats.aero API error for {month_str}: {resp.status_code} - {resp.text}")
                     
             except Exception as e:
-                print(f"Seats.aero exception for {program}: {str(e)}")
+                print(f"Seats.aero exception for {month_str}: {str(e)}")
 
         return offers
 
@@ -94,7 +100,7 @@ class SeatsAeroSource(FlightSource):
                 return None # Drop expensive dynamic tickets
             
             # Extract basic flight info
-            date_str = item.get("Date", config.date_from)
+            date_str = item.get("Date", "Unknown Date")
             route = item.get("Route", {})
             origin = route.get("OriginAirport", config.origin)
             dest = route.get("DestinationAirport", config.destination)
