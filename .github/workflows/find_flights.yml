@@ -3,16 +3,11 @@ name: Find Flight Deals (Stealth/GDS)
 on:
   workflow_dispatch:
     inputs:
-      date_from:
-        description: 'Start Date (YYYY-MM-DD)'
+      target_month:
+        description: 'Target Month (YYYY-MM)'
         required: true
         type: string
-        default: '2026-07-01'
-      date_to:
-        description: 'End Date (YYYY-MM-DD)'
-        required: true
-        type: string
-        default: '2026-08-31'
+        default: '2026-08'
       cabin_class:
         description: 'Cabin Class'
         required: true
@@ -70,8 +65,7 @@ jobs:
       - name: Run Stealth Flight Sweep
         env:
           SEATS_AERO_KEY: ${{ secrets.SEATS_AERO_KEY }}
-          DATE_FROM: ${{ inputs.date_from || '2026-07-01' }}
-          DATE_TO: ${{ inputs.date_to || '2026-08-31' }}
+          TARGET_MONTH: ${{ inputs.target_month || '2026-08' }}
           CABIN_CLASS: ${{ inputs.cabin_class || 'business' }}
           ADULTS: ${{ inputs.adults || '2' }}
           INFANTS_ON_LAP: ${{ inputs.infants_on_lap || '1' }}
