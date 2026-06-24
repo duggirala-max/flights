@@ -46,6 +46,8 @@ class FlightOffer:
     is_award_mapped: bool = False
     award_program: Optional[str] = None
     award_miles: Optional[int] = None
+    award_taxes_original: Optional[float] = None
+    award_taxes_currency: Optional[str] = None
     award_taxes_eur: Optional[float] = None
     transfer_partners: List[str] = field(default_factory=list)
     award_search_url: Optional[str] = None

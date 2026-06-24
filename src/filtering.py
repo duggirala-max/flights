@@ -39,6 +39,10 @@ class OfferFilter:
                 # Duffel prices are Total. We calculate per adult.
                 offer.raw_data["price_per_adult"] = offer.price_eur / adult_equivalents
 
+            # 4. Filter high-tax economy awards
+            if offer.is_award_mapped and offer.cabin.upper() == "ECONOMY" and offer.award_taxes_eur and offer.award_taxes_eur > 250:
+                continue
+
             valid_offers.append(offer)
             
         return valid_offers

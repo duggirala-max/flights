@@ -119,18 +119,13 @@ class SeatsAeroSource(FlightSource):
                 dest = route.get("DestinationAirport", config.destination)
                 airlines = item.get(airlines_key, "")
                 
-                # Calculate estimated EUR cost for purchasing miles
-                # Conservative estimate: €15 per 1,000 miles during typical sales
-                estimated_miles_cost = (miles / 1000.0) * 15.0
-                
                 # Extract true taxes from Seats.aero API (usually given in integer cents/pence)
                 raw_taxes = int(item.get(taxes_key, 10000))
                 tax_currency = item.get("TaxesCurrency", "USD")
                 
-                # Basic static conversion for taxes (Assume USD/GBP are roughly parity to EUR for simple UI display)
-                # 10000 raw = 100.00
-                estimated_taxes = float(raw_taxes) / 100.0
-                total_estimated_eur = estimated_miles_cost + estimated_taxes
+                # We no longer estimate miles cost here.
+                # Taxes will be converted accurately in the aggregator.
+                original_taxes = float(raw_taxes) / 100.0
                 
                 # Direct deep link structure based on program
                 booking_url = f"https://seats.aero/search?source={program}" # Fallback
@@ -169,20 +164,14 @@ class SeatsAeroSource(FlightSource):
                 # Seats.aero doesn't give us exact duration or times in the basic search endpoint,
                 # we just know the seat exists on that day.
                 
-                # We multiply miles and cost by the number of adults
+                # We multiply miles and taxes by the number of adults
                 total_adult_miles = miles * config.adults
-                total_adult_eur = total_estimated_eur * config.adults
-                
-                # Infants on lap are generally ~10% of adult cash fare or a flat fee on awards.
-                # We'll add a conservative flat €150 for the infant.
-                # Infant fee logic
-                infant_fee = 150.0 * config.infants_on_lap
-                final_price = total_adult_eur + infant_fee
+                total_taxes_original = original_taxes * config.adults
 
                 offer = FlightOffer(
                     source=self.name(),
-                    price_eur=final_price,
-                    price_original=final_price,
+                    price_eur=0.0,
+                    price_original=0.0,
                     currency_original="EUR",
                     origin=origin,
                     destination=dest,
@@ -206,7 +195,9 @@ class SeatsAeroSource(FlightSource):
                     is_award_mapped=True,
                     award_program=program.capitalize(),
                     award_miles=total_adult_miles,
-                    award_taxes_eur=estimated_taxes * config.adults + infant_fee,
+                    award_taxes_original=total_taxes_original,
+                    award_taxes_currency=tax_currency,
+                    award_taxes_eur=None,
                     transfer_partners=transfer_partners,
                     award_search_url=booking_url
                 )
