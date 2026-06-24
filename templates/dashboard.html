@@ -89,13 +89,16 @@
         </h1>
         <p class="text-xl text-gray-400 mb-2">Search Window: <span class="text-gray-200">{{ target_months }}</span> | Cabins: <span class="text-gray-200">{{ cabin_classes }}</span></p>
         <p class="text-sm text-gray-500">Generated at: {{ timestamp }}</p>
+        
+        <!-- Cabin Filter Buttons -->
+        <div id="cabin-filters" class="flex flex-wrap justify-center gap-3 mt-6"></div>
     </div>
 
     <!-- Main Content -->
     <div class="max-w-5xl mx-auto space-y-6">
         {% if flights %}
             {% for flight in flights %}
-                <div class="glass-card rounded-2xl p-6 deal-hover relative overflow-hidden group">
+                <div class="glass-card rounded-2xl p-6 deal-hover relative overflow-hidden group deal-card" data-cabin="{{ flight.cabin|lower }}">
                     <!-- Subtle Glow Effect -->
                     <div class="absolute -inset-1 bg-gradient-to-r from-brand-500 to-purple-600 rounded-2xl blur opacity-0 group-hover:opacity-10 transition duration-500"></div>
                     
@@ -106,6 +109,9 @@
                             <div class="flex items-center gap-3 mb-3">
                                 <span class="px-3 py-1 bg-gray-800 text-gray-300 rounded-lg text-sm font-medium border border-gray-700">
                                     {{ flight.departure_date }}
+                                </span>
+                                <span class="px-3 py-1 bg-brand-500/10 text-brand-400 rounded-lg text-sm font-semibold border border-brand-500/20">
+                                    {{ flight.cabin }}
                                 </span>
                                 {% if flight.is_award_mapped %}
                                     <span class="px-3 py-1 bg-purple-500/10 text-purple-400 rounded-lg text-sm font-semibold border border-purple-500/20">
@@ -255,6 +261,54 @@
                 document.body.style.overflow = 'auto';
             }
         }
+
+        // Cabin Filter Logic
+        document.addEventListener('DOMContentLoaded', () => {
+            const cards = document.querySelectorAll('.deal-card');
+            const filterContainer = document.getElementById('cabin-filters');
+            const cabins = new Set();
+            
+            cards.forEach(card => {
+                if(card.dataset.cabin) cabins.add(card.dataset.cabin);
+            });
+
+            if (cabins.size > 1) {
+                // Add "All" button
+                createFilterBtn('all', 'All Classes', true);
+                
+                // Add button for each cabin
+                Array.from(cabins).sort().forEach(cabin => {
+                    const label = cabin.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+                    createFilterBtn(cabin, label);
+                });
+            }
+
+            function createFilterBtn(filterValue, label, isActive=false) {
+                const btn = document.createElement('button');
+                const activeClasses = 'px-4 py-2 rounded-full text-sm font-semibold transition-all border bg-brand-600 border-brand-500 text-white shadow-lg shadow-brand-500/30';
+                const inactiveClasses = 'px-4 py-2 rounded-full text-sm font-semibold transition-all border bg-dark-800 border-gray-700 text-gray-400 hover:text-white hover:border-gray-500';
+                
+                btn.className = isActive ? activeClasses : inactiveClasses;
+                btn.innerText = label;
+                btn.onclick = () => {
+                    // Update active state of buttons
+                    Array.from(filterContainer.children).forEach(child => {
+                        child.className = inactiveClasses;
+                    });
+                    btn.className = activeClasses;
+                    
+                    // Filter cards
+                    cards.forEach(card => {
+                        if (filterValue === 'all' || card.dataset.cabin === filterValue) {
+                            card.style.display = 'block';
+                        } else {
+                            card.style.display = 'none';
+                        }
+                    });
+                };
+                filterContainer.appendChild(btn);
+            }
+        });
     </script>
 </body>
 </html>
