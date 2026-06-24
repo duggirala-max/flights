@@ -1,8 +1,6 @@
 name: Find Flight Deals (Stealth/GDS)
 
 on:
-  schedule:
-    - cron: '0 8 * * *' # Runs daily at 08:00 UTC
   workflow_dispatch:
     inputs:
       date_from:
@@ -95,16 +93,3 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./output
           commit_message: "Update stealth flight dashboard"
-
-      - name: Send Email Notification
-        uses: dawidd6/action-send-mail@v3
-        with:
-          server_address: smtp.gmail.com
-          server_port: 465
-          secure: true
-          username: ${{ secrets.SMTP_USERNAME }}
-          password: ${{ secrets.SMTP_PASSWORD }}
-          subject: "✈️ Stealth Flight Deals Dashboard Update"
-          to: gowthams.duggirala@gmail.com
-          from: GitHub Actions Flight Tracker
-          html_body: file://output/index.html
