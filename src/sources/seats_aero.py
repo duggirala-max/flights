@@ -61,6 +61,10 @@ class SeatsAeroSource(FlightSource):
                         print(f"Seats.aero: Found 0 items for {month_str}")
                         continue
                         
+                    print(f"--- SEATS.AERO RAW DATA DUMP FOR {month_str} ---")
+                    print(json.dumps(items[:2], indent=2))
+                    print("--------------------------------------------------")
+                        
                     for item in items:
                         program = str(item.get("Source", "unknown")).lower()
                         if program not in self.programs:
