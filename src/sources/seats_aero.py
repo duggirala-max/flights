@@ -87,6 +87,11 @@ class SeatsAeroSource(FlightSource):
                 return None # Seat not actually available in this cabin
                 
             miles = int(miles)
+
+            # Filter out bad dynamic-pricing deals
+            max_miles = 100000 if config.cabin_class.lower() == "business" else 60000
+            if miles > max_miles:
+                return None # Drop expensive dynamic tickets
             
             # Extract basic flight info
             date_str = item.get("Date", config.date_from)
