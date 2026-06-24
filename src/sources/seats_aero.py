@@ -135,7 +135,7 @@ class SeatsAeroSource(FlightSource):
             transfer_partners = []
             
             if program == "aeroplan":
-                booking_url = "https://www.aircanada.com/en-ca/aeroplan"
+                booking_url = "https://www.aircanada.com/"
                 transfer_partners = ["Amex", "Chase", "Capital One"]
             elif program == "lifemiles":
                 booking_url = "https://www.lifemiles.com/fly/find-flights"
