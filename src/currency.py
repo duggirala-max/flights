@@ -40,4 +40,4 @@ class CurrencyConverter:
             return amount
         if currency in self.rates:
             return amount / self.rates[currency]
-        return amount # Fallback
+        raise ValueError(f"Unknown currency: {currency}")

@@ -22,8 +22,11 @@ class Aggregator:
         
         for source in self.sources:
             print(f"--- Running source: {source.name()} ---")
-            offers = source.search(config, keys)
-            all_offers.extend(offers)
+            try:
+                offers = source.search(config, keys)
+                all_offers.extend(offers)
+            except Exception as e:
+                print(f"Source {source.name()} failed: {e}")
             
         if not all_offers:
             return []
@@ -60,9 +63,9 @@ class Aggregator:
         for offer in offers:
             # Unique identifier for a flight
             fnums = "-".join(sorted([str(fn) for fn in offer.flight_numbers])) if offer.flight_numbers else "N/A"
+            airlines = "-".join(sorted(offer.airlines)) if offer.airlines else "N/A"
             award_prog = offer.award_program or "cash"
-            price_rounded = int(offer.price_eur)
-            uid = f"{offer.departure_date}_{offer.departure_time}_{fnums}_{award_prog}_{price_rounded}"
+            uid = f"{offer.departure_date}_{offer.origin}_{offer.destination}_{offer.cabin}_{airlines}_{fnums}_{award_prog}_{offer.price_eur:.2f}"
             
             if uid not in seen:
                 seen[uid] = offer

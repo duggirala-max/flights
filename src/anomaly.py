@@ -12,17 +12,15 @@ class AnomalyDetector:
         medians = {}
         
         for r in routes:
-            parts = r.split("-")
-            # Assume cabin is consistent in this run, or check per offer
-            # For simplicity, we fetch median for the first cabin we see
-            cabin = offers[0].cabin if offers else "BUSINESS"
-            m = self.db.get_median_price(r, cabin)
-            if m is not None:
-                medians[r] = m
+            # Fetch medians for all possible cabins for this route
+            for c in ["ECONOMY", "PREMIUM_ECONOMY", "BUSINESS", "FIRST"]:
+                m = self.db.get_median_price(r, c)
+                if m is not None:
+                    medians[(r, c)] = m
 
         for offer in offers:
             route = f"{offer.origin}-{offer.destination}"
-            median = medians.get(route)
+            median = medians.get((route, offer.cabin.upper()))
             
             # Rule 1: Price significantly below median
             if median and offer.price_eur < median * 0.6: # 40% below median
