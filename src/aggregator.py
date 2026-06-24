@@ -59,9 +59,10 @@ class Aggregator:
         seen = {}
         for offer in offers:
             # Unique identifier for a flight
-            # Convert to str to prevent TypeError if a flight number is None
-            fnums = "-".join(sorted([str(fn) for fn in offer.flight_numbers]))
-            uid = f"{offer.departure_date}_{offer.departure_time}_{fnums}"
+            fnums = "-".join(sorted([str(fn) for fn in offer.flight_numbers])) if offer.flight_numbers else "N/A"
+            award_prog = offer.award_program or "cash"
+            price_rounded = int(offer.price_eur)
+            uid = f"{offer.departure_date}_{offer.departure_time}_{fnums}_{award_prog}_{price_rounded}"
             
             if uid not in seen:
                 seen[uid] = offer

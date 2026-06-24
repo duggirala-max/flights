@@ -1,252 +1,254 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Flight Deals Dashboard</title>
+    <title>Stealth Flight Deals</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Inter', 'sans-serif'] },
+                    colors: {
+                        brand: { 400: '#818cf8', 500: '#6366f1', 600: '#4f46e5' },
+                        dark: { 800: '#1e1e2e', 900: '#11111b' }
+                    }
+                }
+            }
+        }
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        :root {
-            --primary: #4F46E5;
-            --primary-hover: #4338CA;
-            --bg: #111827;
-            --card-bg: #1F2937;
-            --text-main: #F9FAFB;
-            --text-muted: #9CA3AF;
-            --danger: #EF4444;
-            --warning: #F59E0B;
-        }
         body {
-            font-family: 'Inter', -apple-system, sans-serif;
-            background-color: var(--bg);
-            color: var(--text-main);
-            margin: 0;
-            padding: 20px;
+            background-color: #0f0f17;
+            background-image: 
+                radial-gradient(at 0% 0%, rgba(79, 70, 229, 0.15) 0px, transparent 50%),
+                radial-gradient(at 100% 100%, rgba(147, 51, 234, 0.15) 0px, transparent 50%);
+            background-attachment: fixed;
+            color: #f3f4f6;
         }
-        .header {
-            text-align: center;
-            margin-bottom: 40px;
-            padding: 40px 20px;
-            background: linear-gradient(135deg, #4F46E5 0%, #7C3AED 100%);
-            border-radius: 16px;
+        .glass-card {
+            background: rgba(30, 30, 46, 0.6);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
         }
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            display: grid;
-            gap: 20px;
+        .text-gradient {
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-image: linear-gradient(to right, #818cf8, #c084fc);
         }
-        .flight-card {
-            background-color: var(--card-bg);
-            border-radius: 12px;
-            padding: 24px;
-            display: flex;
-            justify-content: space-between;
+        .deal-hover {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .deal-hover:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 20px 40px -10px rgba(79, 70, 229, 0.2);
+            border-color: rgba(99, 102, 241, 0.3);
+        }
+        /* Hide scrollbar for clean look */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #3f3f46; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #52525b; }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.7);
+            backdrop-filter: blur(4px);
+            z-index: 50;
             align-items: center;
-            border-left: 4px solid transparent;
+            justify-content: center;
         }
-        .anomaly-high {
-            border-left-color: var(--danger);
-        }
-        .anomaly-med {
-            border-left-color: var(--warning);
-        }
-        .price-section {
-            display: flex;
-            flex-direction: column;
-            align-items: flex-end;
-            min-width: 150px;
-        }
-        .price {
-            font-size: 2rem;
-            font-weight: 700;
-            color: #10B981;
-            margin-bottom: 10px;
-        }
-        .price-orig {
-            font-size: 0.9rem;
-            color: var(--text-muted);
-            margin-bottom: 10px;
-        }
-        .book-btn {
-            background-color: var(--primary);
-            color: white;
-            text-decoration: none;
-            padding: 12px 24px;
-            border-radius: 8px;
-            font-weight: 600;
-            text-align: center;
-            display: inline-block;
-            width: 100%;
-            box-sizing: border-box;
-            border: none;
-            cursor: pointer;
-        }
-        .route-info {
-            flex-grow: 1;
-            padding-right: 30px;
-        }
-        .details-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-            gap: 15px;
-            font-size: 0.9rem;
-            color: var(--text-muted);
-            margin-top: 10px;
-        }
-        .detail-item strong {
-            color: var(--text-main);
-            display: block;
-            margin-bottom: 4px;
-        }
-        .badge {
-            display: inline-block;
-            padding: 4px 8px;
-            border-radius: 4px;
-            font-size: 0.8rem;
-            font-weight: 600;
-            margin-right: 5px;
-            margin-bottom: 5px;
-            background-color: #374151;
-            color: #D1D5DB;
-        }
-        .badge-source {
-            background-color: #4B5563;
-        }
-        .badge-flyertalk {
-            background-color: rgba(139, 92, 246, 0.2);
-            color: #C4B5FD;
-            border: 1px solid #8B5CF6;
-        }
-        .badge-duffel {
-            background-color: rgba(16, 185, 129, 0.2);
-            color: #6EE7B7;
-            border: 1px solid #10B981;
-        }
-        .badge-anomaly {
-            background-color: rgba(239, 68, 68, 0.2);
-            color: #FCA5A5;
-        }
-        .alert-box {
-            margin-top: 10px;
-            padding: 10px;
-            background-color: rgba(245, 158, 11, 0.1);
-            border: 1px solid var(--warning);
-            border-radius: 6px;
-            font-size: 0.85rem;
-            color: #FCD34D;
-        }
+        .modal.active { display: flex; animation: fadeIn 0.2s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        .modal-content { animation: slideUp 0.3s ease-out; }
     </style>
 </head>
-<body>
-    <div class="header">
-        <h1>✈️ Stealth Flight Deals Dashboard</h1>
-        <p><strong>{{ origin }}</strong> ➔ <strong>{{ destination }}</strong></p>
-        <p class="text-xl opacity-90 font-medium mb-2">Search Window: {{ target_months }} | Cabin: {{ cabin_class }} | 2 Adults, 1 Infant</p>
-        <p style="font-size: 0.85rem; margin-top: 15px; opacity: 0.8;">Generated at: {{ timestamp }}</p>
+<body class="min-h-screen py-10 px-4 sm:px-6 lg:px-8 font-sans antialiased">
+
+    <!-- Header Section -->
+    <div class="max-w-5xl mx-auto mb-12 text-center">
+        <div class="inline-block p-1 rounded-2xl bg-gradient-to-r from-brand-500 to-purple-600 mb-6">
+            <div class="bg-dark-900 rounded-xl px-6 py-2 text-sm font-semibold tracking-wider uppercase">
+                Premium Award Availability
+            </div>
+        </div>
+        <h1 class="text-5xl font-bold mb-4 tracking-tight">
+            <span class="text-white">{{ origin }}</span>
+            <span class="text-gray-500 mx-4">✈</span>
+            <span class="text-white">{{ destination }}</span>
+        </h1>
+        <p class="text-xl text-gray-400 mb-2">Search Window: <span class="text-gray-200">{{ target_months }}</span> | Cabin: <span class="text-gray-200">{{ cabin_class }}</span></p>
+        <p class="text-sm text-gray-500">Generated at: {{ timestamp }}</p>
     </div>
-    
-    <div class="container">
+
+    <!-- Main Content -->
+    <div class="max-w-5xl mx-auto space-y-6">
         {% if flights %}
             {% for flight in flights %}
-                <div class="flight-card {% if flight.anomaly_score >= 50 %}anomaly-high{% elif flight.anomaly_score > 0 %}anomaly-med{% endif %}">
-                    <div class="route-info">
-                        <div style="font-size: 1.2rem; font-weight: 600; margin-bottom: 10px;">
-                            📅 {{ flight.departure_date }} 
-                            {% if flight.source == 'flyertalk_error_fares' %}
-                                <span class="badge badge-flyertalk">FlyerTalk Error Fare</span>
-                            {% elif flight.source == 'duffel' %}
-                                <span class="badge badge-duffel">Direct NDC / GDS</span>
-                            {% else %}
-                                <span class="badge badge-source">{{ flight.source }}</span>
-                            {% endif %}
-                            <span class="badge">PoS: {{ flight.point_of_sale }}</span>
-                        </div>
+                <div class="glass-card rounded-2xl p-6 deal-hover relative overflow-hidden group">
+                    <!-- Subtle Glow Effect -->
+                    <div class="absolute -inset-1 bg-gradient-to-r from-brand-500 to-purple-600 rounded-2xl blur opacity-0 group-hover:opacity-10 transition duration-500"></div>
+                    
+                    <div class="relative flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
                         
-                        <div>
-                            {% for airline in flight.airlines %}
-                                <span class="badge">{{ airline }}</span>
-                            {% endfor %}
-                            <span style="color: var(--text-muted); font-size: 0.85rem;">Flight: {{ flight.flight_numbers|join(', ') }}</span>
-                        </div>
-                        
-                        <div class="details-grid">
-                            <div class="detail-item">
-                                <strong>Departure</strong> {{ flight.departure_time }}
-                            </div>
-                            <div class="mt-6 sm:mt-0 sm:ml-6 flex flex-col justify-center">
+                        <!-- Left: Route & Airline -->
+                        <div class="flex-1">
+                            <div class="flex items-center gap-3 mb-3">
+                                <span class="px-3 py-1 bg-gray-800 text-gray-300 rounded-lg text-sm font-medium border border-gray-700">
+                                    {{ flight.departure_date }}
+                                </span>
                                 {% if flight.is_award_mapped %}
-                                <a href="{{ flight.award_search_url }}" target="_blank" class="inline-flex justify-center items-center px-6 py-3 border border-transparent text-sm font-medium rounded-lg shadow-sm text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 transition-colors">
-                                    Search Award Flight
-                                    <svg class="ml-2 -mr-1 w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg>
-                                </a>
-                                {% else %}
-                                <a href="{{ flight.booking_url or '#' }}" target="_blank" class="inline-flex justify-center items-center px-6 py-3 border border-transparent text-sm font-medium rounded-lg shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors">
-                                    View Cash Deal
-                                    <svg class="ml-2 -mr-1 w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg>
-                                </a>
+                                    <span class="px-3 py-1 bg-purple-500/10 text-purple-400 rounded-lg text-sm font-semibold border border-purple-500/20">
+                                        {{ flight.award_program }}
+                                    </span>
                                 {% endif %}
-                                {% if flight.anomaly_reasons %}
-                                <div class="mt-3 text-xs text-gray-500 max-w-xs">
-                                    {{ flight.anomaly_reasons | join(', ') }}
+                                {% if flight.anomaly_score >= 50 %}
+                                    <span class="px-3 py-1 bg-red-500/10 text-red-400 rounded-lg text-sm font-semibold border border-red-500/20 flex items-center gap-1">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                                        Anomaly Alert
+                                    </span>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="mb-4">
+                                <div class="text-gray-400 text-sm mb-1 uppercase tracking-wider font-semibold">Operated By</div>
+                                <div class="flex flex-wrap gap-2">
+                                    {% for airline in flight.airlines %}
+                                        <span class="text-xl font-bold text-white">{{ airline }}</span>
+                                    {% endfor %}
+                                    {% if not flight.airlines %}
+                                        <span class="text-xl font-bold text-gray-500">Various/Unknown</span>
+                                    {% endif %}
                                 </div>
-                                {% endif %}
                             </div>
 
-                        {% if flight.anomaly_reasons %}
-                        <div class="alert-box">
-                            <strong>⚠️ Anomaly Detected (Score: {{ flight.anomaly_score }}):</strong>
-                            <ul>
-                            {% for reason in flight.anomaly_reasons %}
-                                <li>{{ reason }}</li>
-                            {% endfor %}
-                            </ul>
+                            {% if flight.anomaly_reasons %}
+                                <div class="mt-4 p-3 rounded-lg bg-orange-500/10 border border-orange-500/20">
+                                    <div class="text-orange-400 text-sm font-medium mb-1">Anomaly Detected (Score: {{ flight.anomaly_score }})</div>
+                                    <ul class="text-orange-300/80 text-xs list-disc pl-4 space-y-1">
+                                    {% for reason in flight.anomaly_reasons %}
+                                        <li>{{ reason }}</li>
+                                    {% endfor %}
+                                    </ul>
+                                </div>
+                            {% endif %}
                         </div>
-                        {% endif %}
-                    </div>
-                    
-                    <div class="price-section" style="text-align: right;">
-                        {% if flight.is_award_mapped %}
-                            <div style="font-size: 0.9rem; color: #D8B4FE; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 4px; font-weight: bold;">
-                                {{ flight.award_program }}
-                            </div>
-                            <div class="price" style="font-size: 1.8rem; color: #C084FC;">
-                                {{ "{:,.0f}".format(flight.award_miles) }} Miles
-                            </div>
-                            <div style="font-size: 1.1rem; color: #F3E8FF; margin-bottom: 6px; font-weight: 500;">
-                                + €{{ "{:,.0f}".format(flight.award_taxes_eur) }} Taxes
-                            </div>
-                            <div style="font-size: 0.8rem; color: #A78BFA; margin-bottom: 12px;">
-                                Transfers: {{ ", ".join(flight.transfer_partners) }}<br>
-                                Cash Equivalent: €{{ "%.0f"|format(flight.price_eur) }}
-                            </div>
-                            <a href="{{ flight.award_search_url }}" target="_blank" class="book-btn" style="background-color: #9333EA;">Search Award Flight</a>
-                        {% else %}
-                            <div style="font-size: 0.9rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 4px;">Total For Party</div>
-                            <div class="price">€{{ "%.0f"|format(flight.price_eur) }}</div>
-                            <div style="font-size: 1.1rem; color: #60A5FA; margin-bottom: 12px; font-weight: 500;">
-                                ( ~€{{ "%.0f"|format(flight.raw_data.price_per_adult|default(flight.price_eur/2)) }} / Adult )
-                            </div>
-                            {% if flight.currency_original != 'EUR' %}
-                                <div class="price-orig">Original: {{ "%.0f"|format(flight.price_original) }} {{ flight.currency_original }}</div>
-                            {% endif %}
-                            
-                            {% if flight.booking_method == 'GET' %}
-                                <a href="{{ flight.booking_url }}" target="_blank" class="book-btn">View Cash Deal</a>
+                        
+                        <!-- Right: Pricing & CTA -->
+                        <div class="flex flex-col items-start md:items-end w-full md:w-auto bg-dark-800/50 p-5 rounded-xl border border-gray-700/50">
+                            {% if flight.is_award_mapped %}
+                                <div class="text-right w-full">
+                                    <div class="text-gray-400 text-xs uppercase tracking-widest mb-1">Total For 2 Adults + 1 Infant</div>
+                                    <div class="text-4xl font-bold text-white mb-1">
+                                        {{ "{:,.0f}".format(flight.award_miles) }} <span class="text-lg text-purple-400 font-medium">pts</span>
+                                    </div>
+                                    <div class="text-gray-300 mb-3 font-medium">
+                                        + €{{ "{:,.0f}".format(flight.award_taxes_eur) }} taxes
+                                    </div>
+                                    
+                                    <div class="text-xs text-gray-500 mb-5 text-left md:text-right">
+                                        <span class="block mb-1">Transfer from: <span class="text-gray-300">{{ ", ".join(flight.transfer_partners) }}</span></span>
+                                        <span class="block">Cash eqv: €{{ "%.0f"|format(flight.price_eur) }}</span>
+                                    </div>
+
+                                    <button onclick="openModal('{{ loop.index }}')" class="w-full md:w-auto inline-flex justify-center items-center px-6 py-3 border border-transparent text-sm font-semibold rounded-xl text-white bg-brand-600 hover:bg-brand-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-500 focus:ring-offset-dark-900 transition-all shadow-lg hover:shadow-brand-500/25">
+                                        How to Book
+                                        <svg class="ml-2 -mr-1 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+                                    </button>
+                                </div>
+
+                                <!-- Booking Modal -->
+                                <div id="modal-{{ loop.index }}" class="modal">
+                                    <div class="modal-content glass-card p-8 rounded-2xl max-w-lg w-full mx-4 relative border border-gray-600">
+                                        <button onclick="closeModal('{{ loop.index }}')" class="absolute top-4 right-4 text-gray-400 hover:text-white transition-colors">
+                                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                                        </button>
+                                        <h3 class="text-2xl font-bold text-white mb-2">Book with {{ flight.award_program }}</h3>
+                                        <p class="text-orange-400 text-sm mb-6 font-medium">⚠️ Automated direct links are blocked by airline anti-bot systems. You must search manually.</p>
+                                        
+                                        <div class="space-y-4 mb-8">
+                                            <div class="flex gap-4 items-start">
+                                                <div class="flex-shrink-0 w-8 h-8 rounded-full bg-brand-500/20 text-brand-400 flex items-center justify-center font-bold">1</div>
+                                                <div>
+                                                    <p class="text-gray-300">Go to the official portal:</p>
+                                                    <a href="{{ flight.booking_url }}" target="_blank" class="text-brand-400 hover:text-brand-300 underline font-medium break-all">{{ flight.booking_url }}</a>
+                                                </div>
+                                            </div>
+                                            <div class="flex gap-4 items-start">
+                                                <div class="flex-shrink-0 w-8 h-8 rounded-full bg-brand-500/20 text-brand-400 flex items-center justify-center font-bold">2</div>
+                                                <p class="text-gray-300">Log in and select <strong>"Book with Miles/Points"</strong>.</p>
+                                            </div>
+                                            <div class="flex gap-4 items-start">
+                                                <div class="flex-shrink-0 w-8 h-8 rounded-full bg-brand-500/20 text-brand-400 flex items-center justify-center font-bold">3</div>
+                                                <p class="text-gray-300">Search <strong>{{ origin }}</strong> to <strong>{{ destination }}</strong> on <strong>{{ flight.departure_date }}</strong> for {{ config_adults|default('2') }} Adults, {{ config_infants|default('1') }} Infant.</p>
+                                            </div>
+                                            <div class="flex gap-4 items-start">
+                                                <div class="flex-shrink-0 w-8 h-8 rounded-full bg-brand-500/20 text-brand-400 flex items-center justify-center font-bold">4</div>
+                                                <p class="text-gray-300">Look for flights operated by <strong>{{ ", ".join(flight.airlines) }}</strong>.</p>
+                                            </div>
+                                        </div>
+                                        
+                                        <button onclick="closeModal('{{ loop.index }}')" class="w-full px-4 py-3 bg-gray-700 hover:bg-gray-600 text-white rounded-xl font-semibold transition-colors">
+                                            Got it, thanks!
+                                        </button>
+                                    </div>
+                                </div>
                             {% else %}
-                                <form action="{{ flight.booking_url }}" method="POST" target="_blank" style="width: 100%;">
-                                    <input type="hidden" name="post_data" value="{{ flight.booking_post_data }}">
-                                    <button type="submit" class="book-btn">View Cash Deal</button>
-                                </form>
+                                <!-- Cash Deal Display -->
+                                <div class="text-right w-full">
+                                    <div class="text-gray-400 text-xs uppercase tracking-widest mb-1">Total Cash Price</div>
+                                    <div class="text-4xl font-bold text-white mb-2">
+                                        €{{ "%.0f"|format(flight.price_eur) }}
+                                    </div>
+                                    <div class="text-xs text-gray-500 mb-5">
+                                        (~€{{ "%.0f"|format(flight.price_eur / 2) }} / Adult)
+                                    </div>
+                                    
+                                    <a href="{{ flight.booking_url }}" target="_blank" class="w-full md:w-auto inline-flex justify-center items-center px-6 py-3 border border-transparent text-sm font-semibold rounded-xl text-white bg-blue-600 hover:bg-blue-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 focus:ring-offset-dark-900 transition-all shadow-lg hover:shadow-blue-500/25">
+                                        View Cash Deal
+                                        <svg class="ml-2 -mr-1 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
+                                    </a>
+                                </div>
                             {% endif %}
-                        {% endif %}
+                        </div>
                     </div>
                 </div>
             {% endfor %}
         {% else %}
-            <div style="text-align: center; padding: 40px; background: var(--card-bg); border-radius: 12px;">
-                No flights found. Try expanding dates or check API keys.
+            <div class="glass-card rounded-2xl p-12 text-center border-gray-800">
+                <svg class="mx-auto h-12 w-12 text-gray-500 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                <h3 class="text-xl font-medium text-gray-200 mb-1">No Stealth Deals Found</h3>
+                <p class="text-gray-400">Try adjusting your target months or origin/destination.</p>
             </div>
         {% endif %}
     </div>
+
+    <script>
+        function openModal(id) {
+            document.getElementById('modal-' + id).classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+        function closeModal(id) {
+            document.getElementById('modal-' + id).classList.remove('active');
+            document.body.style.overflow = 'auto';
+        }
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            if (event.target.classList.contains('modal')) {
+                event.target.classList.remove('active');
+                document.body.style.overflow = 'auto';
+            }
+        }
+    </script>
 </body>
 </html>

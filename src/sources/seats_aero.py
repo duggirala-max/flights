@@ -8,7 +8,8 @@ from .base import FlightSource
 
 class SeatsAeroSource(FlightSource):
     def __init__(self):
-        self.programs = ["aeroplan", "lifemiles", "united"]
+        # We process all programs returned by Seats.aero
+        pass
 
     def name(self) -> str:
         return "seats_aero"
@@ -61,15 +62,8 @@ class SeatsAeroSource(FlightSource):
                         print(f"Seats.aero: Found 0 items for {month_str}")
                         continue
                         
-                    print(f"--- SEATS.AERO RAW DATA DUMP FOR {month_str} ---")
-                    print(json.dumps(items[:2], indent=2))
-                    print("--------------------------------------------------")
-                        
                     for item in items:
                         program = str(item.get("Source", "unknown")).lower()
-                        if program not in self.programs:
-                            continue
-
                         parsed = self._parse_offer(item, program, config)
                         if parsed:
                             offers.append(parsed)
@@ -83,14 +77,27 @@ class SeatsAeroSource(FlightSource):
 
     def _parse_offer(self, item: dict, program: str, config: SearchConfig) -> Optional[FlightOffer]:
         try:
-            # Determine cost based on cabin
+            # Determine cost and keys based on cabin
             miles_key = "YMileageCost"
+            taxes_key = "YTotalTaxes"
+            airlines_key = "YAirlines"
+            cabin_letter = "Y"
+            
             if config.cabin_class.lower() == "business":
                 miles_key = "JMileageCost"
+                taxes_key = "JTotalTaxes"
+                airlines_key = "JAirlines"
+                cabin_letter = "J"
             elif config.cabin_class.lower() == "first":
                 miles_key = "FMileageCost"
+                taxes_key = "FTotalTaxes"
+                airlines_key = "FAirlines"
+                cabin_letter = "F"
             elif config.cabin_class.lower() in ["premium economy", "premium_economy"]:
                 miles_key = "WMileageCost"
+                taxes_key = "WTotalTaxes"
+                airlines_key = "WAirlines"
+                cabin_letter = "W"
                 
             miles = item.get(miles_key)
             if not miles or str(miles) == "0":
@@ -108,27 +115,54 @@ class SeatsAeroSource(FlightSource):
             route = item.get("Route", {})
             origin = route.get("OriginAirport", config.origin)
             dest = route.get("DestinationAirport", config.destination)
-            airlines = item.get("Airlines", "")
+            airlines = item.get(airlines_key, "")
             
             # Calculate estimated EUR cost for purchasing miles
-            # Conservative estimate: €15 per 1,000 miles during typical sales + ~€100 baseline taxes
+            # Conservative estimate: €15 per 1,000 miles during typical sales
             estimated_miles_cost = (miles / 1000.0) * 15.0
-            estimated_taxes = 100.0
+            
+            # Extract true taxes from Seats.aero API (usually given in integer cents/pence)
+            raw_taxes = int(item.get(taxes_key, 10000))
+            tax_currency = item.get("TaxesCurrency", "USD")
+            
+            # Basic static conversion for taxes (Assume USD/GBP are roughly parity to EUR for simple UI display)
+            # 10000 raw = 100.00
+            estimated_taxes = float(raw_taxes) / 100.0
             total_estimated_eur = estimated_miles_cost + estimated_taxes
             
             # Direct deep link structure based on program
-            booking_url = "#"
+            booking_url = f"https://seats.aero/search?source={program}" # Fallback
+            transfer_partners = []
+            
             if program == "aeroplan":
-                booking_url = "https://www.aircanada.com/aeroplan/redeem/"
+                booking_url = "https://www.aircanada.com/en-ca/aeroplan"
                 transfer_partners = ["Amex", "Chase", "Capital One"]
             elif program == "lifemiles":
                 booking_url = "https://www.lifemiles.com/fly/find-flights"
                 transfer_partners = ["Amex", "Capital One", "Citi"]
             elif program == "united":
                 booking_url = "https://www.united.com/en/us/book-flight/united-one-way"
-                transfer_partners = ["Chase"]
+                transfer_partners = ["Chase", "Bilt"]
+            elif program == "lufthansa":
+                booking_url = "https://www.miles-and-more.com/"
+                transfer_partners = ["Marriott"]
+            elif program == "american":
+                booking_url = "https://www.aa.com/booking/find-flights?searchType=Award"
+                transfer_partners = ["Bilt", "Marriott"]
+            elif program == "flyingblue":
+                booking_url = "https://www.airfrance.us/en/search/flights"
+                transfer_partners = ["Amex", "Chase", "Capital One", "Citi", "Bilt"]
+            elif program == "virginatlantic":
+                booking_url = "https://www.virginatlantic.com/"
+                transfer_partners = ["Amex", "Chase", "Capital One", "Citi", "Bilt"]
+            elif program == "qantas":
+                booking_url = "https://www.qantas.com/"
+                transfer_partners = ["Amex", "Capital One", "Citi"]
+            elif program == "delta":
+                booking_url = "https://www.delta.com/flight-search/book-a-flight"
+                transfer_partners = ["Amex"]
             else:
-                transfer_partners = []
+                transfer_partners = ["Varies"]
 
             # Seats.aero doesn't give us exact duration or times in the basic search endpoint,
             # we just know the seat exists on that day.

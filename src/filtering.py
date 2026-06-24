@@ -19,9 +19,7 @@ class OfferFilter:
             if offer.source == "duffel" and offer.origin != config.origin:
                 continue
 
-            # 2. Cabin Enforcement
-            if offer.cabin.lower() not in ["business", "first"]:
-                continue
+            # 2. (Cabin enforcement removed to allow Economy and Premium Economy)
 
             # 3. Passenger Count Normalization (for Duffel mostly)
             # Duffel returns the total price. We calculate per_adult for transparent UI display.
