@@ -6,7 +6,7 @@ class SearchConfig:
     origin: str
     destination: str
     target_months: List[str]
-    cabin_class: str
+    cabin_classes: List[str]
     adults: int = 2
     infants_on_lap: int = 1
 

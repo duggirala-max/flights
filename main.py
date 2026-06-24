@@ -16,7 +16,7 @@ def generate_html(flights, config: SearchConfig):
         origin=config.origin,
         destination=config.destination,
         target_months=", ".join(config.target_months),
-        cabin_class=config.cabin_class,
+        cabin_classes=", ".join(config.cabin_classes).title(),
         timestamp=datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S UTC"),
         flights=flights
     )
