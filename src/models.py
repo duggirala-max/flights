@@ -14,9 +14,8 @@ class SearchConfig:
 @dataclass
 class APIKeys:
     serpapi_key: Optional[str] = None
-    amadeus_client_id: Optional[str] = None
-    amadeus_client_secret: Optional[str] = None
     duffel_token: Optional[str] = None
+    seats_aero_key: Optional[str] = None
 
 @dataclass
 class FlightOffer:
