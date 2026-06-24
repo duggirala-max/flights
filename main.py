@@ -30,7 +30,8 @@ def generate_html(flights, config: SearchConfig):
     summary_path = os.environ.get("GITHUB_STEP_SUMMARY")
     if summary_path and flights:
         with open(summary_path, 'a', encoding='utf-8') as f:
-            f.write(f"## Top Stealth Deals ({config.origin} ➔ {config.destination} | {config.cabin_class})\n\n")
+            cabins_title = ", ".join(config.cabin_classes).title()
+            f.write(f"## Top Stealth Deals ({config.origin} ➔ {config.destination} | {cabins_title})\n\n")
             f.write("| Date | Price | Airlines | Duration | PoS | Source | Anomaly |\n")
             f.write("|------|-------|----------|----------|-----|--------|---------|\n")
             for fl in flights[:15]:

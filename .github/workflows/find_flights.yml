@@ -8,11 +8,26 @@ on:
         required: true
         type: string
         default: '2026-08'
-      cabin_classes:
-        description: 'Cabin Classes (Comma separated: economy, premium economy, business, first)'
+      cabin_economy:
+        description: 'Economy Class'
         required: true
-        type: string
-        default: 'business, economy'
+        type: boolean
+        default: true
+      cabin_premium_economy:
+        description: 'Premium Economy'
+        required: true
+        type: boolean
+        default: false
+      cabin_business:
+        description: 'Business Class'
+        required: true
+        type: boolean
+        default: true
+      cabin_first:
+        description: 'First Class'
+        required: true
+        type: boolean
+        default: false
       adults:
         description: 'Number of Adults'
         required: true
@@ -63,7 +78,10 @@ jobs:
         env:
           SEATS_AERO_KEY: ${{ secrets.SEATS_AERO_KEY }}
           TARGET_MONTHS: ${{ inputs.target_months || '2026-08' }}
-          CABIN_CLASSES: ${{ inputs.cabin_classes || 'business, economy' }}
+          CABIN_ECONOMY: ${{ inputs.cabin_economy }}
+          CABIN_PREMIUM_ECONOMY: ${{ inputs.cabin_premium_economy }}
+          CABIN_BUSINESS: ${{ inputs.cabin_business }}
+          CABIN_FIRST: ${{ inputs.cabin_first }}
           ADULTS: ${{ inputs.adults || '2' }}
           INFANTS_ON_LAP: ${{ inputs.infants_on_lap || '1' }}
           ORIGIN: ${{ inputs.origin || 'FRA' }}

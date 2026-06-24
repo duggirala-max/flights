@@ -17,8 +17,21 @@ def load_config() -> SearchConfig:
     if not months:
         months = ["2026-08"]
 
-    cabins_str = os.environ.get("CABIN_CLASSES", "business, economy")
-    cabins = [c.strip() for c in cabins_str.split(",") if c.strip()]
+    cabins = []
+    if os.environ.get("CABIN_ECONOMY", "false").lower() == "true":
+        cabins.append("economy")
+    if os.environ.get("CABIN_PREMIUM_ECONOMY", "false").lower() == "true":
+        cabins.append("premium economy")
+    if os.environ.get("CABIN_BUSINESS", "false").lower() == "true":
+        cabins.append("business")
+    if os.environ.get("CABIN_FIRST", "false").lower() == "true":
+        cabins.append("first")
+
+    if not cabins:
+        cabins_str = os.environ.get("CABIN_CLASSES", "")
+        if cabins_str:
+            cabins = [c.strip() for c in cabins_str.split(",") if c.strip()]
+            
     if not cabins:
         cabins = ["business"]
 
